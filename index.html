@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+  <title>香港88條具名明渠／水道｜Verified QA Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
 :root {
@@ -53,9 +53,9 @@
     top:12px;
     bottom:12px;
     width:33vw;
-min-width: 450px; 
-  max-width: 600px; 
-min-height: 25vh;
+    min-width: 450px; 
+    max-width: 600px; 
+    min-height: 25vh;
     background:#f0eee9;
     color:#513e30;
     border:1px #7f634d(--line);
@@ -249,57 +249,311 @@ min-height: 25vh;
     font-family:inherit
   }
   
-  @media(max-width:760px) {
-    #panel{width:calc(100% - 24px);
-    height:56%;
-    bottom:auto
+
+  /* Mobile-only controls; desktop keeps the original panel layout */
+  #waterSelect, #layerToggle, #mobileDrawerLegend { display:none; }
+
+  /* Wrappers are visually neutral on desktop */
+  #topControls, #detailSection { display:block; }
+
+  @media (max-width: 768px) {
+    #panel {
+      position:fixed;
+      inset:0;
+      width:auto;
+      min-width:0;
+      max-width:none;
+      min-height:0;
+      background:transparent;
+      border:0;
+      border-radius:0;
+      box-shadow:none;
+      overflow:visible;
+      padding:0;
+      pointer-events:none;
+    }
+
+    /* A. Top control panel */
+    #topControls {
+      position:fixed;
+      z-index:1002;
+      top:max(10px, env(safe-area-inset-top));
+      left:10px;
+      right:78px;
+      background:#f0eee9;
+      color:#513e30;
+      border-radius:14px;
+      box-shadow:0 6px 22px #0004;
+      padding:10px;
+      pointer-events:auto;
+      max-height:38vh;
+      overflow:auto;
+    }
+
+    /* Mobile keeps only layer controls + dropdown in the top card */
+    #topControls > br,
+    #topControls > h2,
+    #topControls > .legend { display:none; }
+      #topControls .sec h2,
+      #detailSection h2 { display: none;}
+
+    #topControls .sec {
+      margin-top:0;
+      padding-top:0;
+    }
+    #topControls .sec + .sec { margin-top:8px; }
+      #topControls h1{
+          font-size:20px;
+      }
+      #topControls h2 {
+      font-size:14px;
+      margin-bottom:5px;
+      letter-spacing:.02em;
+    }
+      
+
+    /* Google-Maps-style floating layer control */
+    #layerSection {
+      position:fixed;
+      z-index:1004;
+      top:max(10px, env(safe-area-inset-top));
+      right:10px;
+      margin:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      pointer-events:auto;
+    }
+    #layerSection > h2 { display:none; }
+    #layerToggle {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:58px;
+      height:58px;
+      min-height:0;
+      padding:0;
+      border:0;
+      border-radius:50%;
+      background:#f0eee9;
+      color:#513e30;
+      box-shadow:0 4px 14px #0004;
+      cursor:pointer;
+    }
+    #layerToggle:active { transform:scale(.96); }
+    #layerSection .mode {
+      display:none;
+      position:absolute;
+      top:66px;
+      right:0;
+      width:min(260px, calc(100vw - 20px));
+      grid-template-columns:1fr;
+      gap:6px;
+      padding:8px;
+      background:#f0eee9;
+      border-radius:14px;
+      box-shadow:0 6px 22px #0004;
+    }
+    #layerSection.is-open .mode { display:grid; }
+    #layerSection .mode button {
+      font-size:13px;
+      line-height:1.25;
+      padding:9px 10px;
+      min-height:42px;
+      text-align:left;
+    }
+    #layerSection .mode button .dot {
+      width:10px;
+      height:10px;
+      margin-right:4px;
+    }
+
+    #search, #list { display:none; }
+    #waterSelect {
+      display:block;
+      width:100%;
+      min-height:42px;
+      font:inherit;
+      font-size:15px;
+      color:#513e30;
+      background:#dfdfd5;
+      border:0;
+      border-radius:8px;
+      padding:8px 34px 8px 10px;
+    }
+
+    /* B. Bottom detail drawer */
+    #detailSection {
+      display:block;
+      position:fixed;
+      z-index:1003;
+      left:0;
+      right:0;
+      bottom:0;
+      margin:0;
+      padding:10px 12px calc(12px + env(safe-area-inset-bottom));
+      max-height:40vh;
+      overflow:auto;
+      background:#f0eee9;
+      color:#513e30;
+      border-radius:18px 18px 0 0;
+      box-shadow:0 -6px 24px #0004;
+      pointer-events:auto;
+      overscroll-behavior:contain;
+      transition:height .22s ease, max-height .22s ease;
+      will-change:height;
+    }
+    #detailSection.is-open {
+      display:block;
+    }
+    #detailSection.is-collapsed {
+      max-height:none;
+      overflow:hidden;
+      padding-bottom:calc(10px + env(safe-area-inset-bottom));
+    }
+    #detailSection.is-collapsed #detail {
+      display:none;
+    }
+    #detailSection.is-collapsed h2 {
+      margin-bottom:0;
+    }
+    #drawerHandle {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:22px;
+      margin:-6px 0 2px;
+      cursor:grab;
+      touch-action:none;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+    #drawerHandle:active { cursor:grabbing; }
+    #drawerHandle span {
+      display:block;
+      width:42px;
+      height:4px;
+      border-radius:99px;
+      background:#9d8a7c;
+      opacity:.6;
+      pointer-events:none;
+    }
+    #detailSection.is-dragging {
+      transition:none;
+      overflow:hidden;
+    }
+
+    /* Mobile legend lives inside the bottom drawer */
+    #mobileDrawerLegend {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:4px 8px;
+      margin:0 0 8px;
+      padding:0 2px 8px;
+      border-bottom:1px solid #c9c2b8;
+      font-size:17px;
+      line-height:1.8;
+    }
+    #mobileDrawerLegend .legend-item {
+      display:flex;
+      align-items:center;
+      min-width:0;
+      white-space:nowrap;
+    }
+    #mobileDrawerLegend .dot {
+      flex:0 0 auto;
+      width:15px;
+      height:15px;
+      margin:0 4px 0 0;
+    }
+
+    #detailSection h2 {
+      font-size:15px;
+      margin:0 0 6px;
+    }
+    #detailSection .card { padding:9px; }
+    #detailSection .name { font-size:18px; }
+    #detailSection .info,
+    #detailSection .phase,
+    #detailSection .small { font-size:15px; }
+
+    /* Leave map controls/readable area between the two floating panels */
+    .leaflet-control-zoom { margin-top:150px !important; display:none;}
   }
-  
-  }
+
   </style>
 </head>
 <body>
   <div id="map"></div>
 
   <div id="panel">
-    <h1>香港 88 條具名明渠／水道</h1>
-              <br>
-        <h2>圖例</h2>
-  
-
-        <div class="legend" style="font-size: 16px;line-height:1.58;">
+    <div id="topControls">
+      <h1>香港 88 條具名明渠／水道</h1>
+      <br>
+      <h2>圖例</h2>
+      <div class="legend" style="font-size: 18px;line-height:1.8;">
         <span class="dot" style="background:var(--open)"></span> 今天仍露天　
         <span class="dot" style="background:var(--partial)"></span> 部分露天／部分地下　<br>
-        <span class="dot" style="background:var(--gone)"></span> 已地下／覆蓋　
+        <span class="dot" style="background:var(--gone)"></span> 已轉入地下／覆蓋　
         <span class="dot" style="background:var(--changing)"></span> 工程改造中　<br>
-        <span class="dot" style="background:var(--hist)"></span> 歷史露天明渠　
+        <span class="dot" style="background:var(--hist)"></span> 歷史明渠　
         <span class="dot" style="background:var(--nat)"></span> 天然前身（大概位置）　
+      </div>
+
+      <div class="sec" id="layerSection">
+        <h2>1 · 圖層</h2>
+        <button  id="layerToggle" type="button" 
+                aria-label="圖層"
+                aria-expanded="false"
+                aria-controls="layerMenu"
+>
+    <svg
+         viewBox="0 0 24 24"
+        width="28"
+        height="28"
+        aria-hidden="true"
+  >
+    <path
+      d="M12 3 3 8l9 5 9-5-9-5Zm-7.5 8.5L12 16l7.5-4.5M4.5 15.5 12 20l7.5-4.5"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+</button>
+        <div class="mode" id="layerMenu">
+          <button id="btnNow" class="on">今天：完整顯示線</button>
+          <button id="btnHist"><span class="dot" style="background:var(--hist)"></span> 歷史：人工河道或露天明渠</button>
+          <button id="btnNat"><span class="dot" style="background:var(--nat)"></span> 天然前身（大概位置）</button>
+          <button id="btnAll">三期疊加</button>
         </div>
+      </div>
 
-
-    <div class="sec">
-      <h2>1 · 圖層</h2>
-      <div class="mode">
-        <button id="btnNow" class="on">今天：完整顯示線</button>
-        <button id="btnHist">從前：人工河道或露天明渠</button>
-        <button id="btnNat">天然前身（大概位置）</button>
-        <button id="btnAll">三期疊加</button>
-
+      <div class="sec">
+        <h2>2 · 選擇一條</h2>
+        <select id="waterSelect" aria-label="選擇一條明渠／水道">
+          <option value="">請選擇一條明渠／水道</option>
+        </select>
+        <input id="search" placeholder="搜尋 ID／中文／英文">
+        <div id="list"></div>
       </div>
     </div>
 
-    <div class="sec">
-      <h2>2 · 選擇一條</h2>
-      <input id="search" placeholder="搜尋 ID／中文／英文">
-      <div id="list"></div>
-    </div>
-
-    <div class="sec">
+    <div class="sec is-collapsed" id="detailSection">
+      <div id="drawerHandle" role="button" tabindex="0" aria-label="展開或收起詳情" aria-expanded="false"><span></span></div>
+      <div id="mobileDrawerLegend" class="legend" aria-label="圖例" style="font-size: 13px;line-height:1.6;">
+        <span class="legend-item"><span class="dot" style="background:var(--open)"></span>今天仍露天</span>
+        <span class="legend-item"><span class="dot" style="background:var(--partial)"></span>部分露天／地下</span>
+        <span class="legend-item"><span class="dot" style="background:var(--gone)"></span>已轉地下／覆蓋</span>
+        <span class="legend-item"><span class="dot" style="background:var(--changing)"></span>工程改造中</span>
+        <span class="legend-item"><span class="dot" style="background:var(--hist)"></span>歷史明渠</span>
+        <span class="legend-item"><span class="dot" style="background:var(--nat)"></span>天然前身</span>
+      </div>
       <h2>3 · 詳情</h2>
       <div id="detail" class="legend">以上選擇一條</div>
     </div>
-
-    
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -403,7 +657,7 @@ min-height: 25vh;
           "外部核對": "歷史位置核實：1882 Chadwick military map 明列 Victoria Barracks Nullah；AAB/Asia Society 確認舊域多利軍營軍火庫在正義道。完整下游至今日龍和道未有同等證據，不能接死。",
           "外部核對來源": "AAB Former Explosives Magazine appraisal; Asia Society HK; Osbert Chadwick 1882 military map",
           "critical_note": "若取不到軍營 drainage plan，以 corridor 結案。",
-          "介紹": "域多利兵房明渠曾穿過舊金鐘軍事區。1882 年 Chadwick 軍事圖直接標出這條水道，位置在主兵房以東、舊軍火庫及 Arsenal Yard 一帶，由堅尼地道以上的太平山北坡來水，向舊海軍船塢與當時海岸低地流去。那時金鐘一帶仍是軍營、倉庫和船塢，水渠是軍區排水的命脈。水道名稱仍留在軍事地圖與檔案中，見證金鐘從軍事用地到商業區的轉變。到了今天走過正義道，未必知道腳下曾有溪水穿流，但那份被覆蓋的歷史仍留在土地之下。"
+          "介紹": "域多利兵房明渠曾穿過舊金鐘軍事區。1882年的查維克（Osbert Chadwick）報告「香港維多利亞城軍事部分地圖」中直接標出這條水道，位置在主兵房以東、舊軍火庫及 Arsenal Yard（軍器廠） 一帶，由堅尼地道以上的太平山北坡來水，向舊海軍船塢與當時海岸低地流去。那時金鐘一帶仍是軍營、倉庫和船塢，水渠是軍區排水的命脈。水道名稱仍留在軍事地圖與檔案中，見證金鐘從軍事用地到商業區的轉變。到了今天走過正義道，未必知道腳下曾有溪水穿流，但那份被覆蓋的歷史仍留在土地之下。"
         },
         {
           "ID": "HK-N-081",
@@ -423,7 +677,7 @@ min-height: 25vh;
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "薄扶林道／般咸道北坡",
+          "研究起點": "薄扶林道／龍虎山北坡",
           "研究迄點": "德輔道西→西環海岸",
           "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
@@ -519,7 +773,7 @@ min-height: 25vh;
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "醫院山（律敦治一帶）",
+          "研究起點": "舊醫院山（敦道治醫院一帶）",
           "研究迄點": "皇后大道東→舊灣仔海岸",
           "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
@@ -531,7 +785,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "石水渠街的街名直接保存了一條退到地下的灣仔水道。十九世紀時，水從醫院山沿坡北流，經龍安街、石水渠街至舊海岸。那時石水渠街是灣仔的熱鬧街市，溪水穿過街心，兩旁攤販叫賣，水聲與人聲混雜。1960 至 1961 年年報記錄 Stone Nullah 加蓋，理由是消除惡臭。水道從此隱入地下，今天水路仍由醫院山、律敦治一帶承接來水，沿昔日走廊轉入地下排水系統，向皇后大道東、舊灣仔海岸方向續行。河渠的「消失」往往只是從視線裡退場，水仍在另一種斷面裡工作，而地名成為追索舊水線的重要線索。走在石水渠街上，想像當年溪水穿過市集的畫面，仍能感受到灣仔舊日的水鄉風情。"
+          "介紹": "石水渠街的街名直接保存了一條退到地下的灣仔水道。十九世紀時，水從醫院山沿坡北流，經隆安街、石水渠街至舊海岸。那時石水渠街是灣仔的熱鬧街市，溪水穿過街心，兩旁攤販叫賣，水聲與人聲混雜。1960 至 1961年年報記錄石水渠加蓋，理由是消除惡臭。水道從此隱入地下，今天水路仍由舊醫院山（律敦治醫院一帶）承接來水，沿昔日走廊轉入地下排水系統，向皇后大道東、舊灣仔海岸方向續行。河渠的「消失」往往只是從視線裡退場，水仍在另一種斷面裡工作，而地名成為追索舊水線的重要線索。"
         },
         {
           "ID": "HK-N-023",
@@ -552,7 +806,7 @@ min-height: 25vh;
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
           "研究起點": "渣甸山、畢拿山溪谷",
-          "研究迄點": "銅鑼灣舊海岸",
+          "研究迄點": "銅鑼灣高士威道",
           "校訂長度": "約 250 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
@@ -627,7 +881,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "現代地下雨水渠不得當作1912/1929舊明渠原線。",
-          "介紹": "筲箕灣舊明渠是港島東一個早期排水網。水自柏架山、阿公岩背後山坡向北，穿過舊筲箕灣村，流入避風塘。昔日的筲箕灣是漁村，村民在避風塘停泊漁船，山坡溪水穿村而過，供村民洗滌與灌溉。1912 年已進行渠道工程，1929 年文件記錄主渠與西支流；市區主槽其後漸藏入地下管道。水道不再從頭到尾可見，由柏架山、阿公岩背後坡地而來的水在露天河段、工程渠與地下管道之間接續，最後仍朝筲箕灣避風塘排走。今天的筲箕灣已從漁村變成密集市區，但地勢與舊街廓仍能對應昔日的排水方向，記錄著海岸與城市擴張的歷史。走在筲箕灣東大街，海風中似乎仍能聞到舊時溪水與鹹水交會的氣味。"
+          "介紹": "筲箕灣明渠是港島東一個早期排水網。水自柏架山、阿公岩背後山坡向北，穿過舊筲箕灣村和今日東大街一帶，流入避風塘。1912年政府已在村內做渠道工程，1929年大旱時文件寫著「筲箕灣12號橋明渠主渠」和「西支流」。1926年暴雨把這組水網沖得七零八落，戰後仍不斷清淤。隨著東區填海和發展，主槽漸漸藏入箱涵和雨水渠，地面全變道路與樓宇。2024年起東大街、阿公岩道又增建新雨水渠，上游更計劃以隧道截流。村落明渠已消失，但暴雨時水仍追著同一條低地走廊奔向避風塘。"
         },
         {
           "ID": "HK-N-084",
@@ -787,7 +1041,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "水渠道明渠保存了旺角從溪谷變成街區的記憶。芒角山水由界限街、花墟向西南流，穿過花園街、通菜街、西洋菜南街。昔日的旺角還是芒角村，溪水穿過農田與村屋，是村民賴以維生的水源。1920 年代拉直砌岸，道路以「水渠道」記住它，1960 年底主段入地。「水渠道」這街名成為追索舊水線的重要線索，而街道和建築已佔據原來的露天斷面。今日走在水渠道上，兩旁是商場與舊樓，但腳下曾是芒角村世代依賴的溪水，這份記憶仍藏在街名裡。"
+          "介紹": "水渠道一帶保存著旺角從溪谷變成街區的過程。1884年地圖仍見「芒角坑」；20世紀初工務文件把工程化後的主排水線稱為芒角咀明渠，而渠旁道路後來直接命名Nullah Road「水渠道」。主渠由界限街近花墟一帶向西南進入旺角，經花園街、通菜街、西洋菜街與水渠道附近，再轉向旺角道和舊海旁。1922年起政府整治指定天然水道；1923年築約1,050呎亂石面明渠並鋪混凝土渠底，鐵路橋軟基處用打樁與浮式鋼筋混凝土平台承托，1924年再續建渠牆。1934年加護牆後水面仍開放。戰後衛生與交通壓力增加，1956年水渠道進入首批明渠覆蓋計劃。古物古蹟辦記載主段到1960年底已加蓋，1960–61工務司年報亦直接說Mong Kok Nullahs因改善交通而加蓋。今天水在街道下排走，未來會以水景和水道公園重新提示這條舊水線。"
         },
         {
           "ID": "HK-N-012",
@@ -807,7 +1061,7 @@ min-height: 25vh;
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已按前輪 QA 修正代表點；仍只作定位入口",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "洗衣街×花墟道",
+          "研究起點": "洗衣街與花墟道交界",
           "研究迄點": "界限街（花墟徑）",
           "校訂長度": "約 210 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
@@ -851,7 +1105,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "亞皆老街明渠是旺角低地水網的一段，承接東面較高地勢的雨水，沿亞皆老街向西穿過密集街區。1909 年配合路堤築渠牆，1929 至 1930 年局部覆蓋，1950 至 1951 年砵蘭街至鐵路橋段以鋼筋混凝土暗渠完整取代。在城市擴展以前這條水道是旺角低地的重要排水線，兩旁逐漸發展成繁華商業街。街道和建築佔據了原來的露天斷面，但亞皆老街的路線仍大致對應舊水道。它提醒人們，河渠的「消失」往往只是從視線裡退場，水仍在另一種斷面裡工作，而旺角低地的排水網絡正是由這些舊水道逐步整合而成。站在亞皆老街與砵蘭街交界，想像昔日溪水穿過市集的畫面，更能體會旺角如何一步步從水鄉變成鬧市。"
+          "介紹": "亞皆老街明渠是旺角低地水網的一段，承接東面較高地勢的雨水，沿亞皆老街向西穿過密集街區。1909 年配合路堤築渠牆，1929 至 1930 年局部覆蓋，1950 至 1951 年砵蘭街至鐵路橋段以鋼筋混凝土暗渠完整取代。在城市擴展以前這條水道是旺角低地的重要排水線，兩旁逐漸發展成繁華商業街。街道和建築佔據了原來的露天斷面，但亞皆老街的路線仍大致對應舊水道。它提醒人們，河渠的「消失」往往只是從視線裡退場，水仍在另一種斷面裡工作，而旺角低地的排水網絡正是由這些舊水道逐步整合而成。今天水仍在亞皆老街地下流，河道的功能留了下來，地面的城市用途卻已完全改寫。"
         },
         {
           "ID": "HK-N-027",
@@ -987,7 +1241,7 @@ min-height: 25vh;
           "英文名": "Lai Po Road Nullah",
           "地區": "九龍",
           "分區": "深水埗·荔枝角",
-          "現況可見性": "待判定",
+          "現況可見性": "已消失",
           "工程／活化狀態": "2026 精確現況仍待 named 30m 渠段與最新工程圖對齊",
           "object_scope": "local_engineering_segment",
           "天然前身級別": "N0",
@@ -1011,7 +1265,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "荔寶路明渠位於荔枝角，約三十米長、十三至十四米寬，是填海地與工業區邊緣的一段人工排水渠。荔枝角的海岸線曾比今天靠內，新的道路、廠房和住宅落成後，也需要新的出水路徑。長期的氣味問題推動覆蓋工程；施工採旱季半幅作業、雨季保留全渠排洪，短短一段渠因而清楚可看出城市工程要跟天氣輪班。從月輪街、深旺道走到水船街泵房，看到的不只是一條渠的改造，也是海岸向外移後，城市重新安排雨水出口的過程。"
+          "介紹": "荔寶路明渠位於荔枝角，約30米長、13至14米寬，是填海地與工業區邊緣的一段人工排水渠。荔枝角的海岸線曾比今天靠內，新的道路、廠房和住宅落成後，也需要新的出水路徑。長期的氣味問題推動覆蓋工程；施工採旱季半幅作業、雨季保留全渠排洪，短短一段渠因而清楚可看出城市工程要跟天氣輪班。從月輪街、深旺道走到水船街泵房，看到的不只是一條渠的改造，也是海岸向外移後，城市重新安排雨水出口的過程。"
         },
         {
           "ID": "HK-N-004",
@@ -1107,7 +1361,7 @@ min-height: 25vh;
           "外部核對": "長度核實：DSD 2020–21 資料把沈雲山抽水站至佐敦谷游泳池的活化明渠段列為約 330 m；原 90 m 不再採用。",
           "外部核對來源": "DSD Sustainability Report 2020–21",
           "critical_note": "",
-          "介紹": "佐敦谷水道承接飛鵝山、四順一帶的山坡雨水。活化後保留的露天渠段由沈雲山抽水站至佐敦谷游泳池，長約 330 米，上游部分早已覆蓋。昔日觀塘一帶是山谷農地，佐敦谷水道是山坡溪流的一部分。1950 年代觀塘發展為衛星城市，水道被改造成混凝土明渠，成為排洪幹道。近年保留下來的露天段加入魚梯、石灘、水生植物與水道花園，使它成為「先覆蓋一部分、再活化餘下水道」的典型。佐敦谷水道的活化讓人看見，即使部分覆蓋，殘留的露天段仍可恢復生態與休憩功能，讓居民重新親近水邊。"
+          "介紹": "佐敦谷水道承接飛鵝山、四順一帶的山坡雨水。活化後保留的露天渠段由沈雲山抽水站至佐敦谷游泳池，長約 330 米，上游部分早已覆蓋。昔日觀塘一帶是山谷農地，佐敦谷水道是山坡溪流的一部分。1950 年代觀塘發展為衞星城市，水道被改造成混凝土明渠，成為排洪幹道。近年保留下來的露天段加入魚梯、石灘、水生植物與水道花園，使它成為「先覆蓋一部分、再活化餘下水道」的典型。佐敦谷水道的活化讓人看見，即使部分覆蓋，殘留的露天段仍可恢復生態與休憩功能，讓居民重新親近水邊。"
         },
         {
           "ID": "HK-N-018",
@@ -1140,358 +1394,166 @@ min-height: 25vh;
           "外部核對來源": "DSD 4171CD Tsui Ping River",
           "critical_note": "",
           "介紹": "翠屏河的水從觀塘北山坡經翠屏邨、商貿區向維港流去。長期稱為「翠屏道明渠」，1988 年觀塘道以北段配合屋邨重建被覆蓋。從前觀塘北山坡是寮屋與農地，水道是自然溪流。1950 年代觀塘工業區興起，這條水道被拉直成明渠，成為工業廢水的排放通道。2020 至 2024 年重建約一公里露天水道，加入浮島、智能水閘等元素，並改名為「翠屏河」。翠屏河的例子展示了一條工程明渠如何透過重新設計，轉變為兼具防洪、生態與公共空間功能的城市河道，也讓觀塘的舊區風貌多了新的水岸風景。"
+        },           
+        {
+          "ID": "HK-N-044",
+          "中文名": "蠔涌河",
+          "英文名": "Ho Chung River",
+          "地區": "新界",
+          "分區": "西貢",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R3",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I1 + bank setback",
+          "anchor_lat": 22.36,
+          "anchor_lng": 114.253,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "水牛山、東洋山山谷",
+          "研究迄點": "白沙灣→牛尾海",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "蠔涌河的水從水牛山、東洋山沿蠔涌村、蠔涌路向白沙灣、牛尾海流去。從前蠔涌是西貢的古老村落，村民以農耕與漁業為生，這條河是村莊的命脈，河名也與當地出產的蠔有關。2007 至 2009 年進行下游約 650 米工程，把河道後移南岸擴闊，並設天然河床、魚梯、石塊護岸與河牆避難孔，沒有削成單一水泥槽。到了今天水仍大致由水牛山、東洋山山谷沿開放河道或溪谷向白沙灣、牛尾海流去，只是河床、護岸與兩側土地早已留下不同年代的工程痕跡。"
         },
         {
-          "ID": "HK-N-041",
-          "中文名": "梧桐河",
-          "英文名": "Ng Tung River",
+          "ID": "HK-N-062",
+          "中文名": "西貢河",
+          "英文名": "Sai Kung River",
           "地區": "新界",
-          "分區": "北區",
+          "分區": "西貢",
           "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
           "object_scope": "whole_watercourse",
-          "天然前身級別": "R2",
+          "天然前身級別": "R3",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I2/I3",
-          "anchor_lat": 22.5123,
-          "anchor_lng": 114.1606,
+          "relation_code": "I1/I2",
+          "anchor_lat": 22.385,
+          "anchor_lng": 114.272,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "紅花嶺、黃嶺、粉嶺東北",
-          "研究迄點": "虎地坳→羅湖→深圳河",
-          "校訂長度": "約 49 km",
+          "研究起點": "馬鞍山、金字塔山山谷",
+          "研究迄點": "西貢海",
+          "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD Ng Tung River page + North District EIA/aerial sequence",
-          "source_readiness": "R3 topology; R2→R3 centreline trace",
-          "製圖規則": "把雙魚、石上、梧桐匯流做真正node；不要三條各自直接入深圳河。",
-          "外部核對": "長度定義核實：DSD 資料使用約 49 km 的 total length；此數字不等同地圖上一條單一主幹 LineString 的量測長度。",
-          "外部核對來源": "DSD Ng Tung River materials",
-          "critical_note": "官方已確認天然源區為紅花嶺（Robin's Nest）與黃嶺（Wong Leng），並於虎地坳附近與石上河、雙魚河匯流；現只剩工程前中心線描取。",
-          "介紹": "梧桐河的水從紅花嶺、黃嶺匯下，穿過粉嶺、上水平原，在虎地坳與石上河、雙魚河相會，經羅湖入深圳河。舊名 Fung Kai，殖民文件常稱 River Indus。在城市擴展以前這條河是上水、粉嶺一帶的農業命脈，兩岸稻田遍佈，村民在河邊築陂引水。1998 至 2004 年分階段拉直、擴闊、護岸，河道形態大幅改變，舊時的彎曲河道變成了寬直的工程水道。梧桐河的整治折射出新界北低地從農業洪泛平原到現代排水系統的轉變，也影響著深圳河邊界一帶的水文。走在河邊，昔日的稻浪已被新的城市景觀取代，但水的流向仍連接著過去與現在。"
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "西貢河從馬鞍山、金字塔山山谷由北穿過西貢市北緣，流入西貢海。在城市擴展以前西貢市是漁村與墟市，這條河是墟市與海之間的連接，漁船沿河出海口停泊。2009 年渠道化，把市鎮附近河段擴整成穩定的開放斷面，沒有加蓋，上游仍接山谷，下游仍直接通海。西貢河的整治沒有把河道覆蓋，保留了市鎮中難得的開放水景，也呈現了西貢市在旅遊與社區發展中，仍重視河流作為公共空間的價值。到了今天西貢海旁的河段，是遊人與居民散步、看海的地方，河的開闊水面仍連接著山谷與海洋。"
         },
         {
-          "ID": "HK-N-075",
-          "中文名": "深圳河",
-          "英文名": "Shenzhen River",
+          "ID": "HK-N-034",
+          "中文名": "井欄樹溪",
+          "英文名": "Tseng Lan Shue Stream",
           "地區": "新界",
-          "分區": "北區·港深邊界",
-          "現況可見性": "未消失",
+          "分區": "西貢",
+          "現況可見性": "部分消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
           "object_scope": "whole_watercourse",
           "天然前身級別": "R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I3(Stage I–III)+I1(Stage IV)",
-          "anchor_lat": 22.50613,
-          "anchor_lng": 114.03465,
+          "明渠期級別": "R2",
+          "現況級別": "R2",
+          "relation_code": "mixed natural+culvert",
+          "anchor_lat": 22.335,
+          "anchor_lng": 114.246,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "港深邊界山谷",
-          "研究迄點": "落馬洲→后海灣",
-          "校訂長度": "約 37 km",
+          "研究起點": "飛鵝山／清水灣半島內陸坡",
+          "研究迄點": "井欄樹低地",
+          "校訂長度": "約 90 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD Shenzhen River Regulation Project",
-          "source_readiness": "R3 topology; R2→R3 centreline trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "長度／流向核實：DSD 資料指深圳河約 37 km，由東北向西南入后海灣。",
-          "外部核對來源": "DSD Shenzhen River Regulation Project",
-          "critical_note": "",
-          "介紹": "深圳河既是河，也是港深邊界。它從新界北與深圳一側的山谷匯水，沿打鼓嶺、文錦渡、羅湖、落馬洲流入后海灣。在大規模發展以前這條河是兩岸村民往來的天然水道，船隻穿梭，邊境生活緊密相連。1950 年代後，邊界封鎖，河面成了政治分界線。1995 年起分四期治理（1997／2000／2006／2017），第四期加建蓄洪湖與濕地。"
-        },
-        {
-          "ID": "HK-N-054",
-          "中文名": "丹山河",
-          "英文名": "Tan Shan River",
-          "地區": "新界",
-          "分區": "北區·粉嶺",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2/I3",
-          "anchor_lat": 22.52,
-          "anchor_lng": 114.17,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "丹竹坑、馬尾下",
-          "研究迄點": "軍地→梧桐河",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "Official EIA / DSD current drainage plan",
-          "source_readiness": "R2→R3",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "source_route": "EPD/EIA figure for Tseng Lan Shue Stream",
+          "source_readiness": "R2",
+          "製圖規則": "露天天然段與箱涵段分開；證據空隙不補線。",
           "外部核對": "",
           "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "丹山河位於粉嶺東北，沿馬尾下、沙頭角公路低地流過，名稱沿用丹竹坑地名。在周邊尚未密集建成時丹竹坑一帶是客家村落，村民在山谷開墾梯田，溪水穿村而過，是農業灌溉的主要水源。2011 年 7 月完成擴闊拉直工程，露天工程河與鄉郊溪流交錯，並未因新市鎮發展而全部轉入地下。這種半自然、半工程的形態，正是香港許多鄉郊水道最典型的樣子，也讓人看見了粉嶺東北在城市化邊緣地帶的排水管理策略。走在丹竹坑的田間小路上，仍能看見溪水在石塊間流過，混合著鄉村生活的樸實與現代防洪的痕跡。"
+          "critical_note": "Tseng Lan Shue Stream作獨立天然溪身份由EPD長期河流水質資料確認；但90m露天段與約140m箱涵的精確拓撲仍未由同一官方圖證連成完整線，兩段分開製圖。",
+          "介紹": "井欄樹溪位於清水灣道井欄樹村低地。在大規模發展以前井欄樹是清水灣道旁的村落，村民種植蔬果，溪水穿村而過，是日常用水的來源。2008年政府文件列出約有90米露天明渠，但同區早在 2006 至 2008 年已建約 140 米地下管道，兩段接近卻非同一線位，地下管道與露天段並存。2024 年仍設水質監測站。井欄樹溪的複雜形態說明，鄉郊地區的水道往往在局部工程與自然溪流之間交錯，難以簡單歸類為「明渠」或「暗渠」。走在井欄樹村，仍能見到溪水在村旁流過，而村外的地底，另一段水流正繼續前行。"
         },
         {
-          "ID": "HK-N-049",
-          "中文名": "平原河",
-          "英文名": "Ping Yuen River",
+          "ID": "HK-N-016",
+          "中文名": "福民路明渠",
+          "英文名": "Fuk Man Road Nullah",
           "地區": "新界",
-          "分區": "北區·打鼓嶺",
-          "現況可見性": "未消失",
+          "分區": "西貢",
+          "現況可見性": "已消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R3",
+          "object_scope": "local_engineering_segment",
+          "天然前身級別": "R1/R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I2",
-          "anchor_lat": 22.535,
-          "anchor_lng": 114.156,
+          "relation_code": "I6",
+          "anchor_lat": 22.382,
+          "anchor_lng": 114.27,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "打鼓嶺禾徑山",
-          "研究迄點": "深圳河",
-          "校訂長度": "—",
+          "研究起點": "西貢谷地／街區",
+          "研究迄點": "西貢海（福民花園下）",
+          "校訂長度": "約 180 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
+          "source_route": "",
+          "source_readiness": "",
+          "製圖規則": "Current underground route requires drainage-plan evidence; road centreline is only a corridor proxy.",
+          "外部核對": "長度核實：DSD 工程資料列福民路明渠約 180 m 長、12 m 闊。",
+          "外部核對來源": "DSD Fuk Man Road Nullah project",
           "critical_note": "",
-          "介紹": "平原河在打鼓嶺禾徑山收集山谷雨水，向北流入深圳河。它本是天然洪泛平原，雨季河水漫流，滋養了兩岸農田與濕地。打鼓嶺一帶長期是邊境禁區，開發較少，這條河得以保留較天然的樣貌。2003 至 2006 年進行約 1.7 公里復修，主河約一半用植草混凝土護岸，部分支流用石塊砌護。2026 年暴雨再次暴露上游支流不足。平原河的治理並非一蹴而就，即使經過工程整治，極端天氣下鄉郊河道的排水能力仍可能受到挑戰。打鼓嶺的寧靜鄉郊與這條河相依相存，未來的氣候變化將是它新的考驗。"
+          "介紹": "福民路明渠位於西貢市中心，長約 180 米、寬 12 米，處於密集街市、巴士與行人之間。在周邊尚未密集建成時西貢墟市熱鬧，這條明渠穿過市中心，是墟市的排水通道，也是居民日常經過的地方。2009 年 8 月改建為箱形暗渠，上方整理為約 4,000 平方米的福民花園，2012 年 6 月開放。這條水道的覆蓋過程讓人看見西貢市中心在商業密集區中，如何透過覆蓋明渠換取公共休憩空間，也讓人看見露天排水渠在商業地段的氣味與空間問題如何被解決。現在福民花園是街坊休憩的地方，樹蔭下的人們或許不知道，腳下曾有一條露天水流穿過墟市。"
         },
         {
-          "ID": "HK-N-051",
-          "中文名": "石上河",
-          "英文名": "Shek Sheung River",
+          "ID": "HK-N-035",
+          "中文名": "中坑明渠",
+          "英文名": "Chung Hang Nullah",
           "地區": "新界",
-          "分區": "北區·上水",
+          "分區": "荃灣",
           "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R3",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I3/I2",
-          "anchor_lat": 22.503,
-          "anchor_lng": 114.113,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "上水、石湖墟西",
-          "研究迄點": "深圳河水系",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "North District EIA + LandsD aerial sequence",
-          "source_readiness": "R2→R3",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "石上河沿上水、石湖墟西面、塱原西緣向北流入深圳河水系。殖民文件稱它為 River Sutlej。從前上水一帶是農田與魚塘交錯的平原，石上河蜿蜒其間，是農業灌溉的重要來源。1990 年代末起分段訓練，舊曲流被工程主槽取代，未來將受古洞北、粉嶺北污水設施更新影響。石上河的整治折射出上水一帶從農業低地到新市鎮邊緣的轉變，塱原的濕地也與這條河的水文息息相關。到了今天塱原的稻田與蘆葦叢仍依賴石上河的水滋潤，而河的形態卻已不再是昔日的蜿蜒曲流。"
-        },
-        {
-          "ID": "HK-N-052",
-          "中文名": "軍地河",
-          "英文名": "Kwan Tei River",
-          "地區": "新界",
-          "分區": "北區·粉嶺",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2/I3",
-          "anchor_lat": 22.516,
-          "anchor_lng": 114.162,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "粉嶺東·軍地、皇后山",
-          "研究迄點": "梧桐河",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "Official EIA / DSD current drainage plan",
-          "source_readiness": "R2→R3",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "軍地河位於粉嶺東面軍地、皇后山一帶，匯水向西北流入梧桐河。在城市擴展以前這一帶是鄉村與農田，軍地河是村民生活與農耕的重要水源。2011 年完成擴闊拉直，其後在硬化河中進行生態試驗，改造多孔河岸與不同流速微地形，螢火蟲因而重現。螢火蟲的重現，讓這條曾因工程而失去生機的河道，再次點亮了鄉郊的夜晚。"
-        },
-        {
-          "ID": "HK-N-050",
-          "中文名": "雙魚河",
-          "英文名": "Sheung Yue River",
-          "地區": "新界",
-          "分區": "北區·古洞",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R3",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2/I3",
-          "anchor_lat": 22.505,
-          "anchor_lng": 114.098,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "古洞、塱原",
-          "研究迄點": "虎地坳→深圳河",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "North District EIA + LandsD aerial sequence",
-          "source_readiness": "R2→R3",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "雙魚河流經古洞、塱原、河上鄉，在虎地坳與梧桐河、石上河匯合。殖民文件稱 River Beas。在大規模發展以前這條河是古洞一帶農村的血脈，河水清澈，魚蝦成群，故有「雙魚」之名。1999 至 2001 年下游進行訓練並復修，部分舊曲流留作濕地。時至今日它已成為新發展區與塱原自然公園之間的藍綠邊界。水仍大致由古洞、塱原沿開放河道或溪谷向虎地坳、深圳河流去，只是河床、護岸與兩側土地早已留下不同年代的工程痕跡。雙魚河的變化不是一次完成，而是在取直、護岸、覆蓋與重新整理之間逐步發生。未來古洞北發展將進一步影響這條河的景觀與功能，而塱原的稻田與河上鄉的魚塘，仍將依賴雙魚河的水維持生計與生態。"
-        },
-        {
-          "ID": "HK-N-053",
-          "中文名": "麻笏河",
-          "英文名": "Ma Wat River",
-          "地區": "新界",
-          "分區": "北區·粉嶺",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R3",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2",
-          "anchor_lat": 22.502,
-          "anchor_lng": 114.152,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "粉嶺九龍坑山",
-          "研究迄點": "簡頭村→梧桐河",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "麻笏河在粉嶺九龍坑山一帶向北流，於簡頭村接入梧桐河。在周邊尚未密集建成時粉嶺一帶是客家村落，麻笏河是村民日常洗滌與灌溉的水源，河邊常見婦女洗衣、孩童嬉水。屬北區排水改善 Package A，2005 至 2008 年建約 1.8 公里渠道，並處理東鐵下穿問題，2015 年底在賽馬會道附近做生態提升試驗。麻笏河的整治記下了粉嶺一帶鄉郊排水系統的現代化，也可看出在工程渠道中嘗試加入生態元素的趨勢。時至今日麻笏河兩岸的村屋與農田仍在，溪水仍在，但舊日河邊洗衣的情景已不復見。"
-        },
-        {
-          "ID": "HK-N-063",
-          "中文名": "丙崗溪",
-          "英文名": "Ping Kong Stream",
-          "地區": "新界",
-          "分區": "北區·粉嶺",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2",
-          "anchor_lat": 22.512,
-          "anchor_lng": 114.128,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "粉嶺丙崗、南華莆",
-          "研究迄點": "北區河網→梧桐河",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "丙崗溪位於粉嶺東北丙崗、南華莆一帶，水從山坡、農田、村路匯下，接入北區河網。昔日這一帶是典型的鄉郊聚落，溪水沿著田邊流過，村民在溪邊開墾菜地，溪水同時也是家禽飲水的來源。2006 年 12 月起在丙崗、九肚坑、南華莆等地興建約 5.2 公里渠道與地下管道，2010 年底完成，混凝土渠床加設植草護坡。丙崗溪的治理呈現了，鄉郊低地的排水改善往往涉及大範圍渠道與地下管道，改變了原有溪流的面貌。走在丙崗的鄉間小路上，溪水仍穿流而過，但它的岸線已比從前整齊得多。"
-        },
-        {
-          "ID": "HK-N-033",
-          "中文名": "田心明渠（沙田）",
-          "英文名": "Tin Sum Nullah",
-          "地區": "新界",
-          "分區": "沙田·大圍／沙田水廠",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "quarantined_unverified_entry",
-          "天然前身級別": "R0",
-          "明渠期級別": "R0",
-          "現況級別": "R0/R1",
-          "relation_code": NaN,
-          "anchor_lat": NaN,
-          "anchor_lng": NaN,
-          "anchor_role": "NO ANCHOR — official figure trace required",
-          "位置判定": "身份已核；anchor 留空；只可畫官方 EIA/EPD 支持的走廊",
-          "定位QA理由": "舊粉嶺座標已作廢；不回用，也不把 TR20B 監測站當 anchor。圖上只畫 EIA/EPD 支持的沙田水道範圍走廊。",
-          "研究起點": "沙田濾水廠東南側田心水道／山坡來水",
-          "研究迄點": "城門河水系",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "R2 location corridor; no anchor; exact line pending official figure",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "Sha Tin WTW EIA + Tai Wai EIA + EPD monitoring TR20B",
-          "source_readiness": "R2; R3 after official figure trace",
-          "製圖規則": "舊Fanling身份、600m長度與22.492/114.148座標全部停用；只按沙田官方圖畫。",
-          "外部核對": "身份核實：EPD 沙田濾水廠 EIA 明確列 Tin Sum Nullah 位於工程邊界東南；TR20B 是該水道監測站。監測站座標只作證據點，不回填成 anchor。",
-          "外部核對來源": "EPD Sha Tin WTW EIA; EPD River Water Quality station TR20B",
-          "critical_note": "原表稱『粉嶺田心明渠』約600m，並聲稱2008/2014 EIA有記錄；但目前可直接核實的2014官方 Tin Sum Nullah 位於沙田濾水廠東南。2008政府公告只證明附件列有受投訴明渠，未在可檢索正文支持此粉嶺條目。暫視為來源/地名混淆，從確認製圖層隔離。",
-          "介紹": "田心明渠位於沙田濾水廠東南側，承接田心與附近山坡來水，屬城門河水系。「田心」是香港常見地名；這一條指向沙田，而不是粉嶺或洪水橋。從前大圍、田心一帶仍有農田與村落，今天濾水廠、道路與屋苑把水道包在城市邊緣。它最有趣之處不在宏大的河景，而是同名水道如何把人帶到不同流域：讀地名時，還要一起讀坡向、支流和水最後流入哪一條河。"
-        },
-        {
-          "ID": "HK-N-069",
-          "中文名": "馬草壟溪",
-          "英文名": "Ma Tso Lung Stream",
-          "地區": "新界",
-          "分區": "北區·落馬洲",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
+          "object_scope": "whole_watercourse",
           "天然前身級別": "R1/R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
           "relation_code": "I2",
-          "anchor_lat": 22.51,
-          "anchor_lng": 114.078,
+          "anchor_lat": 22.375,
+          "anchor_lng": 114.113,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "落馬洲馬草壟",
-          "研究迄點": "深圳河",
-          "校訂長度": "—",
+          "研究起點": "荃灣照潭徑（曹公潭山谷）",
+          "研究迄點": "荃灣→藍巴勒海峽",
+          "校訂長度": "約 280 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "source_route": "DSD/CSDI current drainage plan",
+          "source_readiness": "R2/R3",
+          "製圖規則": "按現況工程渠描線；若無舊圖，不建立天然期。",
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "馬草壟溪在落馬洲馬草壟向西北流入深圳河，毗鄰魚塘、濕地。在城市擴展以前馬草壟一帶是邊境村落，村民以種植和養魚為生，溪水滋養了村邊的魚塘與農田。屬北區排水改善 Package B，2008 年 8 月覆蓋麒麟村、馬草壟等約 3.1 公里工程開工，2010 年底完成，大部分採用石塊護岸，順意新村西南保留半天然段。馬草壟溪的整治與邊境濕地、魚塘景觀交織，讓人看見落馬洲一帶在防洪與生態之間的平衡。站在馬草壟的高處，深圳河與魚塘濕地一覽無遺，這條溪流流動，連接著邊境的過去與現在。"
+          "介紹": "中坑明渠位於荃灣曹公潭以南，是舊工業城市裡常見的排洪水道，六十年代的歷史照片中，明渠曾把工業區與住宅分開。昔日荃灣是工業重鎮，紗廠、染廠林立，這條明渠是工業廢水的排放通道，海面因為染布顔色而變紅或變白。隨後政府進行明渠覆蓋工程，後來又被改建為箱形暗渠，即今日的大涌道，成為荃灣流入海港的主要地下雨水排放道之一，承載著荃灣的工業記憶。"
         },
         {
           "ID": "HK-N-055",
@@ -1595,7 +1657,7 @@ min-height: 25vh;
           "英文名": "Tai Po Tau Shui Wai Drainage Channel",
           "地區": "新界",
           "分區": "大埔",
-          "現況可見性": "未消失可能性高",
+          "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
           "object_scope": "whole_watercourse",
           "天然前身級別": "N0",
@@ -1651,7 +1713,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "天然期不應畫成單一『城門河』；應為大圍、火炭、小瀝源等支流 MultiLineString + 歷史沙田海/Tide Cove polygon，填海後才形成延長的工程主河槽。",
-          "介紹": "城門河今日看似筆直寬闊的城市河，但它原是深入沙田的沙田海。沙田谷地的水從大圍、火炭、小瀝源匯下。在城市擴展以前沙田是寧靜的谷地與海灣，漁船與農田並存，潮汐吞吐著沙田海。1961 至 1962 年已有河道訓練，1970 年代新市鎮填海把受潮汐吞吐的水面收成固定河廊。天然時期不應畫成單一「城門河」，而是大圍、火炭、小瀝源等支流與歷史沙田海的水網，填海後才形成延長的工程主河槽。城門河的轉變是沙田新市鎮發展最具代表性的水文改造，從海灣到人工河，這片土地的命運與水緊緊相連。時至今日城門河兩岸是單車徑與住宅，划艇、散步的人們或許不知道，這條河的前身是一片海。"
+          "介紹": "城門河在今日看似是一條筆直寬濶的城市河道，但它原是深入沙田的沙田海。沙田谷地的水從大圍、火炭、小瀝源匯下。在城市擴展以前沙田是寧靜的谷地與海灣，漁船與農田並存，潮汐吞吐著沙田海。1961 至 1962 年已有河道訓練，1970 年代新市鎮填海把受潮汐吞吐的水面修成固定河廊。天然時期不應畫成單一「城門河」，而是大圍、火炭、小瀝源等支流與歷史沙田海的水網，填海後才形成延長的工程主河槽。城門河的轉變是沙田新市鎮發展最具代表性的水文改造，從海灣到人工河，這片土地的命運與水緊緊相連。時至今日城門河兩岸是單車徑與住宅，划艇、散步的人們或許不知道，這條河的前身是一片海。"
         },
         {
           "ID": "HK-N-020",
@@ -1683,8 +1745,40 @@ min-height: 25vh;
           "外部核對": "位置／長度核實：官方 EIA 指大圍明渠約 2 km、約 40 m 闊，源於 Needle Hill，向東南流入城門河。本版代表點移到 supplied DSD EngineeredChannel 上。",
           "外部核對來源": "EPD Tai Wai Nullah EIA; supplied DSD CSDI",
           "critical_note": "天然源頭可正式鎖定為 Needle Hill（針山）；下城門水塘屬現代水文背景，不作天然源頭。1956–58主河仍大致天然，1970年代才大幅渠道化。",
-          "介紹": "大圍明渠長約兩公里，是城門河的重要支流之一。官方環評把天然源頭鎖定在針山，水向東南經大圍谷地流入城門河。1950 年代圖上仍可見較天然的河道，1970 年代新市鎮發展後才大幅拉直、擴闊與混凝土化。在大規模發展以前大圍是沙田谷地中的傳統村落，農田依賴這條溪水灌溉。新市鎮興起後，大圍變成高密度住宅區，這條明渠也成了排洪的主要通道。現況仍為露天工程渠，活化方案在 2026 年仍處於詳細設計或前期準備。"
+          "介紹": "大圍明渠長約兩公里，是城門河的重要支流之一。官方環評把天然源頭鎖定在針山，水向東南經大圍谷地流入城門河。1950年代地圖上仍可見較天然的河道，1970 年代新市鎮發展後才大幅拉直、擴闊與混凝土化。在大規模發展以前大圍是沙田谷地中的傳統村落，農田依賴這條溪水灌溉。新市鎮興起後，大圍變成高密度住宅區，這條明渠也成了排洪的主要通道。現況仍為露天工程渠，活化方案在 2026 年仍處於詳細設計或前期準備。"
         },
+        {
+          "ID": "HK-N-033",
+          "中文名": "田心明渠（沙田）",
+          "英文名": "Tin Sum Nullah",
+          "地區": "新界",
+          "分區": "沙田·大圍／沙田水廠",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "quarantined_unverified_entry",
+          "天然前身級別": "R0",
+          "明渠期級別": "R0",
+          "現況級別": "R0/R1",
+          "relation_code": NaN,
+          "anchor_lat": NaN,
+          "anchor_lng": NaN,
+          "anchor_role": "NO ANCHOR — official figure trace required",
+          "位置判定": "身份已核；anchor 留空；只可畫官方 EIA/EPD 支持的走廊",
+          "定位QA理由": "舊粉嶺座標已作廢；不回用，也不把 TR20B 監測站當 anchor。圖上只畫 EIA/EPD 支持的沙田水道範圍走廊。",
+          "研究起點": "沙田濾水廠東南側田心水道／山坡來水",
+          "研究迄點": "城門河水系",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "R2 location corridor; no anchor; exact line pending official figure",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "Sha Tin WTW EIA + Tai Wai EIA + EPD monitoring TR20B",
+          "source_readiness": "R2; R3 after official figure trace",
+          "製圖規則": "舊Fanling身份、600m長度與22.492/114.148座標全部停用；只按沙田官方圖畫。",
+          "外部核對": "身份核實：EPD 沙田濾水廠 EIA 明確列 Tin Sum Nullah 位於工程邊界東南；TR20B 是該水道監測站。監測站座標只作證據點，不回填成 anchor。",
+          "外部核對來源": "EPD Sha Tin WTW EIA; EPD River Water Quality station TR20B",
+          "critical_note": "原表稱『粉嶺田心明渠』約600m，並聲稱2008/2014 EIA有記錄；但目前可直接核實的2014官方 Tin Sum Nullah 位於沙田濾水廠東南。2008政府公告只證明附件列有受投訴明渠，未在可檢索正文支持此粉嶺條目。暫視為來源/地名混淆，從確認製圖層隔離。",
+          "介紹": "田心明渠位於沙田濾水廠東南側，承接田心與附近山坡來水，屬城門河水系。「田心」是香港常見地名；這一條指向沙田，而不是粉嶺或洪水橋。從前大圍、田心一帶仍有農田與村落，今天濾水廠、道路與屋苑把水道包在城市邊緣。它最有趣之處不在宏大的河景，而是同名水道如何把人帶到不同流域：讀地名時，還要一起讀坡向、支流和水最後流入哪一條河。"
+        },          
         {
           "ID": "HK-N-038",
           "中文名": "小瀝源渠",
@@ -1747,168 +1841,8 @@ min-height: 25vh;
           "外部核對": "位置／型態核實：DSD EcoDMS 指火炭明渠源自禾上墩，是城門河支流；上游緊接半天然溪，現渠段混凝土化。",
           "外部核對來源": "DSD EcoDMS Fo Tan Nullah",
           "critical_note": "1976可正式作歷史基準年；當時主體仍為農地中的天然河道，近河口已有局部渠道化。現代上游仍有多條天然支流，需與1976歷史主河分層。",
-          "介紹": "火炭明渠源自禾上墩，上游仍保持半天然山溪，進入火炭工業區後成為混凝土渠，匯入城門河。1976 年地圖仍見上中游沿自然河槽，1989 年列為有異味明渠但未全面加蓋，今以 4188CD 規劃活化。昔日火炭是山谷中的小村落，農田與溪流並存。1970 年代火炭工業區興起，這條溪流的下游被改造成明渠，成了工廠排污的通道。火炭明渠的上游仍保留天然溪流特徵，下游則完全工程化，清楚展示同一水道在城市化前後的不同面貌。現在火炭工業區轉型為藝術與商貿空間，這條明渠也在等待新的活化可能。"
-        },
-        {
-          "ID": "HK-N-044",
-          "中文名": "蠔涌河",
-          "英文名": "Ho Chung River",
-          "地區": "新界",
-          "分區": "西貢",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R3",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I1 + bank setback",
-          "anchor_lat": 22.36,
-          "anchor_lng": 114.253,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "水牛山、東洋山山谷",
-          "研究迄點": "白沙灣→牛尾海",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "蠔涌河的水從水牛山、東洋山沿蠔涌村、蠔涌路向白沙灣、牛尾海流去。從前蠔涌是西貢的古老村落，村民以農耕與漁業為生，這條河是村莊的命脈，河名也與當地出產的蠔有關。2007 至 2009 年進行下游約 650 米工程，把河道後移南岸擴闊，並設天然河床、魚梯、石塊護岸與河牆避難孔，沒有削成單一水泥槽。到了今天水仍大致由水牛山、東洋山山谷沿開放河道或溪谷向白沙灣、牛尾海流去，只是河床、護岸與兩側土地早已留下不同年代的工程痕跡。"
-        },
-        {
-          "ID": "HK-N-062",
-          "中文名": "西貢河",
-          "英文名": "Sai Kung River",
-          "地區": "新界",
-          "分區": "西貢",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "whole_watercourse",
-          "天然前身級別": "R3",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I1/I2",
-          "anchor_lat": 22.385,
-          "anchor_lng": 114.272,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "馬鞍山、金字塔山山谷",
-          "研究迄點": "西貢海",
-          "校訂長度": "—",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "西貢河從馬鞍山、金字塔山山谷由北穿過西貢市北緣，流入西貢海。在城市擴展以前西貢市是漁村與墟市，這條河是墟市與海之間的連接，漁船沿河出海口停泊。2009 年渠道化，把市鎮附近河段擴整成穩定的開放斷面，沒有加蓋，上游仍接山谷，下游仍直接通海。西貢河的整治沒有把河道覆蓋，保留了市鎮中難得的開放水景，也呈現了西貢市在旅遊與社區發展中，仍重視河流作為公共空間的價值。到了今天西貢海旁的河段，是遊人與居民散步、看海的地方，河的開闊水面仍連接著山谷與海洋。"
-        },
-        {
-          "ID": "HK-N-034",
-          "中文名": "井欄樹溪",
-          "英文名": "Tseng Lan Shue Stream",
-          "地區": "新界",
-          "分區": "西貢",
-          "現況可見性": "部分消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "whole_watercourse",
-          "天然前身級別": "R2",
-          "明渠期級別": "R2",
-          "現況級別": "R2",
-          "relation_code": "mixed natural+culvert",
-          "anchor_lat": 22.335,
-          "anchor_lng": 114.246,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "飛鵝山／清水灣半島內陸坡",
-          "研究迄點": "井欄樹低地",
-          "校訂長度": "約 90 m",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "EPD/EIA figure for Tseng Lan Shue Stream",
-          "source_readiness": "R2",
-          "製圖規則": "露天天然段與箱涵段分開；證據空隙不補線。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "Tseng Lan Shue Stream作獨立天然溪身份由EPD長期河流水質資料確認；但90m露天段與約140m箱涵的精確拓撲仍未由同一官方圖證連成完整線，兩段分開製圖。",
-          "介紹": "井欄樹溪位於清水灣道井欄樹村低地。在大規模發展以前井欄樹是清水灣道旁的村落，村民種植蔬果，溪水穿村而過，是日常用水的來源。2008 年附件列約 90 米露天明渠，但同區早在 2006 至 2008 年已建約 140 米地下管道，兩段接近卻非同一線位，地下管道與露天段並存。2024 年仍設水質監測站。井欄樹溪的複雜形態說明，鄉郊地區的水道往往在局部工程與自然溪流之間交錯，難以簡單歸類為「明渠」或「暗渠」。走在井欄樹村，仍能見到溪水在村旁流過，而村外的地底，另一段水流正繼續前行。"
-        },
-        {
-          "ID": "HK-N-016",
-          "中文名": "福民路明渠",
-          "英文名": "Fuk Man Road Nullah",
-          "地區": "新界",
-          "分區": "西貢",
-          "現況可見性": "已消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "local_engineering_segment",
-          "天然前身級別": "R1/R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I6",
-          "anchor_lat": 22.382,
-          "anchor_lng": 114.27,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "西貢谷地／街區",
-          "研究迄點": "西貢海（福民花園下）",
-          "校訂長度": "約 180 m",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "",
-          "source_readiness": "",
-          "製圖規則": "Current underground route requires drainage-plan evidence; road centreline is only a corridor proxy.",
-          "外部核對": "長度核實：DSD 工程資料列福民路明渠約 180 m 長、12 m 闊。",
-          "外部核對來源": "DSD Fuk Man Road Nullah project",
-          "critical_note": "",
-          "介紹": "福民路明渠位於西貢市中心，長約 180 米、寬 12 米，處於密集街市、巴士與行人之間。在周邊尚未密集建成時西貢墟市熱鬧，這條明渠穿過市中心，是墟市的排水通道，也是居民日常經過的地方。2009 年 8 月改建為箱形暗渠，上方整理為約 4,000 平方米的福民花園，2012 年 6 月開放。這條水道的覆蓋過程讓人看見西貢市中心在商業密集區中，如何透過覆蓋明渠換取公共休憩空間，也讓人看見露天排水渠在商業地段的氣味與空間問題如何被解決。現在福民花園是街坊休憩的地方，樹蔭下的人們或許不知道，腳下曾有一條露天水流穿過墟市。"
-        },
-        {
-          "ID": "HK-N-035",
-          "中文名": "中坑明渠",
-          "英文名": "Chung Hang Nullah",
-          "地區": "新界",
-          "分區": "荃灣",
-          "現況可見性": "未消失",
-          "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "whole_watercourse",
-          "天然前身級別": "R1/R2",
-          "明渠期級別": "R3",
-          "現況級別": "R3",
-          "relation_code": "I2",
-          "anchor_lat": 22.375,
-          "anchor_lng": 114.113,
-          "anchor_role": "研究代表點／定位入口",
-          "位置判定": "已核位置範圍；代表點非中心線",
-          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "荃灣照潭徑山谷",
-          "研究迄點": "荃灣→藍巴勒海峽",
-          "校訂長度": "約 280 m",
-          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
-          "current_display_geometry_status": "research reconstructed / corridor",
-          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD/CSDI current drainage plan",
-          "source_readiness": "R2/R3",
-          "製圖規則": "按現況工程渠描線；若無舊圖，不建立天然期。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "中坑明渠位於荃灣照潭徑一帶，是舊工業城市裡長期可見的排洪水道，歷史照片中曾把工業區與住宅分開。昔日荃灣是工業重鎮，紗廠、染廠林立，這條明渠是工業廢水的排放通道，也是工人上下班途中熟悉的風景。荃灣排水隧道截走部分山洪，卻沒有把它埋掉。2021 年納入「現有河道優化工程—第一期」。中坑明渠保留至今，見證荃灣從工業重鎮到商住混合區的轉變，也可看出部分明渠仍被視為城市排水系統中不可或缺的開放空間。到了今天沿著照潭徑走，仍能看見這條明渠穿過社區，承載著荃灣的工業記憶。"
-        },
+          "介紹": "火炭明渠源自禾上墩，上游仍保持半天然山溪，進入火炭工業區後成為混凝土渠，匯入城門河。1976 年地圖仍見上中游沿自然河槽，1989 年列為有異味明渠但未全面加蓋。昔日火炭是山谷中的小村落，農田與溪流並存。1970 年代火炭工業區興起，這條溪流的下游被改造成明渠，成了工廠排污的通道。火炭明渠的上游仍保留天然溪流特徵，下游則完全工程化，清楚展示同一水道在城市化前後的不同面貌。現在火炭工業區轉型為藝術與商貿空間，這條明渠也在等待新的活化可能。"
+        },          
         {
           "ID": "HK-N-005",
           "中文名": "家興大廈明渠",
@@ -2055,8 +1989,8 @@ min-height: 25vh;
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已按前輪 QA 修正代表點；仍只作定位入口",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "葵涌葵榮路高處坡面",
-          "研究迄點": "葵涌低地→藍巴勒海峽",
+          "研究起點": "葵榮街靠近青山公路－葵涌段",
+          "研究迄點": "大連排道與葵涌道交界附近",
           "校訂長度": "約 40 m",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
@@ -2067,7 +2001,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "葵榮路斜渠伏在葵涌山坡與舊工業區之間，收集高處坡面與道路的暴雨水，利用葵榮路、葵榮街的落差急送葵涌低地。昔日這一帶是山坡與農田的交界，溪水自然流下。工業區開發後，山坡與廠房之間形成了這條高落差排水斜渠。平日不起眼，暴雨時成為高速急流，約 40 米長的露天斜渠在 2000 年代覆蓋。原來的露天斜渠被覆蓋後，地面空間重新分配，但地勢與路名仍記錄著這條高落差排水路徑。這類斜渠的工程設計重點在於控制流速與防止沖刷，是葵涌工業區山坡排水系統的重要一環。到了今天葵榮路車流不息，很少人知道這裡曾是一條暴雨時洶湧的斜渠。"
+          "介紹": "斜渠位於葵榮路（舊稱葵榮街）附近，屬於大連排工業區的一部份，鄰近為港鐵葵興站。1950 至 1960 年代，政府大規模發展荃灣及葵涌衛星城市，移山填海填平了原有的醉酒灣。為了防止山洪暴發導致附近工業區及居民區水浸，政府在區內興建了多條排洪明渠（包括葵榮街斜渠、新葵街斜渠及業成街明渠等）。 2005 年被列入政府的覆蓋明渠計劃中，被覆蓋後的土地已被改造成公共用途，如綠化環境、休憩設施或擴闊路面。"
         },
         {
           "ID": "HK-N-011",
@@ -2131,7 +2065,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "屯門河由屯門谷地與周邊山坡來水，穿過新市鎮中央，向青山灣流去。在城市擴展以前屯門是漁村與農田，這條河是農業灌溉與漁船進出的重要水道。1970 年代屯門新市鎮發展，河道被大幅工程化，拉直、擴闊，兩岸築起石堤。1989 年政府明確反對一律加蓋，理由是造價高、增加清理維護困難，治理轉向水質與景觀，4195CD 活化規劃中。屯門河的保留與活化，標誌著香港河道管理從「覆蓋為先」轉向「排洪與景觀並重」的轉折。今天屯門河兩岸是行人徑與單車徑，居民在河邊散步、垂釣，這條河仍是屯門人生活的一部分。"
+          "介紹": "屯門河由屯門谷地與周邊山坡來水，穿過新市鎮中央，向青山灣流去。在城市擴展以前屯門是漁村與農田，這條河是農業灌溉與漁船進出的重要水道。1970 年代屯門新市鎮發展，河道被大幅工程化，拉直、擴闊，兩岸築起石堤。1989 年政府明確反對一律加蓋，理由是造價高、增加清理維護困難，治理轉向水質與景觀。屯門河的保留與活化，標誌著香港河道管理從「覆蓋為先」轉向「排洪與景觀並重」的轉折。今天屯門河兩岸是行人徑與單車徑，居民在河邊散步、垂釣，這條河仍是屯門人生活的一部分。"
         },
         {
           "ID": "HK-N-091",
@@ -2323,7 +2257,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "山貝河中心線大致繼承；主要變化在斷面／護岸。",
-          "介紹": "山貝河由九逕山、大棠及市鎮低地匯水，穿元朗、橫洲、南生圍入后海灣。曾叫山背河、元朗河、元朗瀝；大陂頭段舊稱 Tai Pei Tau River，1820 年《新安縣志》已記築堰。在大規模發展以前這條河是元朗平原的農業命脈，兩岸稻田與魚塘遍佈，漁船與小艇穿梭其間。1961 至 1962 年進行河道訓練，河岸被加固。山貝河中心線大致繼承歷史河道，主要變化在斷面與護岸。山貝河與南生圍的濕地、蘆葦床緊密相連，是元朗平原最具生態與景觀價值的河流之一。到了今天南生圍的蘆葦叢中，仍能看見山貝河蜿蜒而過，白鷺飛翔。"
+          "介紹": "山貝河由九逕山、大棠及市鎮低地匯水，穿元朗、橫洲、南生圍入后海灣。曾叫山背河、元朗河、元朗瀝；大陂頭段舊稱 Tai Pei Tau River，1820 年《新安縣志》已記築堰。在大規模發展以前這條河是元朗平原的農業命脈，兩岸稻田與魚塘遍佈，漁船與小艇穿梭其間。1961 至 1962 年進行河道治理，河岸被加固。山貝河中心線大致繼承歷史河道，主要變化在斷面與護岸。山貝河與南生圍的濕地、蘆葦床緊密相連，是元朗平原最具生態與景觀價值的河流之一。到了今天南生圍的蘆葦叢中，仍能看見山貝河蜿蜒而過，白鷺飛翔。"
         },
         {
           "ID": "HK-N-040",
@@ -2454,37 +2388,101 @@ min-height: 25vh;
           "介紹": "洪水橋水道位於洪水橋、廈村、天水圍之間低地，從和平新村向北接天水圍主排水道。在城市擴展以前洪水橋一帶是農田與村落，洪水橋水道是田間排水的通道。1995 年已有專門水力研究，並非 2000 年代才出現。2001 至 2005 年以約 5 公里實心欄杆提升防洪，未來將成為洪水橋新市鎮中心的主水線。洪水橋水道的防洪提升與未來新市鎮規劃密切相關，呈現了這條水道將從鄉郊排水渠轉變為城市景觀水線。未來洪水橋新市鎮的居民，將與這條水道共同生活。"
         },
         {
-          "ID": "HK-N-061",
-          "中文名": "牛潭尾水道",
-          "英文名": "Ngau Tam Mei Channel",
+          "ID": "HK-N-094",
+          "中文名": "橋頭圍明渠",
+          "英文名": "Kiu Tau Wai Nullah",
           "地區": "新界",
-          "分區": "元朗·牛潭尾",
-          "現況可見性": "未消失",
+          "分區": "元朗·洪水橋",
+          "現況可見性": "工程改造中",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "tributary_or_branch",
-          "天然前身級別": "R2",
+          "object_scope": "local_engineering_segment",
+          "天然前身級別": "R1/R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I9/I2",
-          "anchor_lat": 22.47,
-          "anchor_lng": 114.046,
+          "relation_code": "I7",
+          "anchor_lat": 22.442,
+          "anchor_lng": 113.998,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "牛潭尾、攸壆路低地",
-          "研究迄點": "錦田河",
+          "研究起點": "洪志路（洪天路走廊）",
+          "研究迄點": "屏廈路",
+          "校訂長度": "工程分段",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "HSK/Ha Tsuen EIA (Kiu Tau Wai / local channel)",
+          "source_readiness": "R2/R3 from EIA figures",
+          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "橋頭圍明渠位於洪水橋—廈村新發展區中部，貼洪天路走廊由洪志路向北到屏廈路。從前這一帶是農田與村落，這條明渠是田間排水的通道。2016 年環評記錄兩岸為直立混凝土河牆。新發展區計劃對約 120 米進行覆蓋，其餘水道並非全消失，會露天與地下短段交錯。現在它仍位於洪志路至屏廈路的排水走廊內，但形態正在改變：部分河段會維持露天，部分則被改道、活化或納入地下管道。若把今天的街廓疊回舊水線，仍能讀到一條被工程改寫、卻沒有真正停止流動的路徑，也看到洪水橋新發展區如何重塑排水網絡。未來這裡將變成新市鎮的一部分，而這條水道將以新的面貌與居民相遇。"
+        },
+        {
+          "ID": "HK-N-093",
+          "中文名": "洪天路明渠",
+          "英文名": "Hung Tin Road Nullah",
+          "地區": "新界",
+          "分區": "元朗·洪水橋",
+          "現況可見性": "工程改造中",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "local_engineering_segment",
+          "天然前身級別": "R1/R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I7",
+          "anchor_lat": 22.44,
+          "anchor_lng": 114.0,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "青山公路（洪天路東側）",
+          "研究迄點": "近橋發街",
+          "校訂長度": "工程分段",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "HSK/Ha Tsuen EIA (Hung Tin Road Nullah)",
+          "source_readiness": "R2/R3 from EIA figures",
+          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "洪天路明渠沿洪天路東側南北走向，是洪水橋—廈村低地典型的直立混凝土渠。在城市擴展以前洪水橋一帶是農田，這條明渠是田間排水與灌溉的通道。2016 年環評記錄由青山公路延伸至近橋發街。新發展區對約 720 米提出覆蓋，屬大比例永久失去露天水面的處置。時至今日它仍位於青山公路（洪天路東側）至近橋發街的排水走廊內，但形態正在改變：部分河段會維持露天，部分則被改道、活化或納入地下管道。洪天路明渠的大比例覆蓋，讓人看見洪水橋新發展區在土地需求下，如何將原有的露天排水渠轉為地下管道，以釋出地面空間。未來洪天路一帶將高樓林立，而這條水道將大部分隱入地下，只留下片段記憶。"
+        },
+        {
+          "ID": "HK-N-092",
+          "中文名": "石埗水道",
+          "英文名": "Shek Po Channel",
+          "地區": "新界",
+          "分區": "元朗·洪水橋",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R1/R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I7/I9",
+          "anchor_lat": 22.448,
+          "anchor_lng": 114.0,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "石埗、青山公路一帶",
+          "研究迄點": "天水圍河道→后海灣",
           "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "DSD EcoDMS river map + aerial tour",
-          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
-          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "source_route": "HSK/Ha Tsuen EIA (Shek Po Channel)",
+          "source_readiness": "R2/R3 from EIA figures",
+          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "牛潭尾水道位於元朗東部低地，向西流入錦田河，覆蓋約 10 平方公里集水區。在大規模發展以前牛潭尾一帶是農田與魚塘，這條水道是田間排灌的命脈。1999 至 2005 年分兩期進行主排水道工程，混凝土加植草護岸，下游設充氣壩阻潮水倒灌。牛潭尾水道的建設映照出元朗東部低地在城市化壓力下，如何透過大型排水道來控制洪水，並防止潮水倒灌影響上游。今天牛潭尾一帶仍是農田與村屋交錯的鄉郊，這條水道維持著這片低地的安寧。"
-        },
+          "介紹": "石埗水道位於洪水橋—廈村南部低地，從石埗、青山公路向北接天水圍河道，通后海灣。在大規模發展以前石埗一帶是魚塘與農田，這條水道是低地排水的重要部分。2016 年環評記錄北段為斜面混凝土河岸，南段短距離植草混凝土。新發展以提升為主，保留在開放空間骨架中。石埗水道在新發展區中將被保留並提升，可看出洪水橋規劃在排水與開放空間之間尋求整合。未來石埗一帶的居民，將能沿著這條水道散步，感受新市鎮與水共生的生活。"
+        },          
         {
           "ID": "HK-N-079",
           "中文名": "田心明渠（洪水橋）",
@@ -2515,8 +2513,40 @@ min-height: 25vh;
           "外部核對": "身份核實：洪水橋 EIA 把 Tin Sam Channel 列作獨立水道；2024–2032 新發展區工程包括若干渠段改道及活化。原 22.442,114.000 仍只是粗定位，不升作 exact centreline。",
           "外部核對來源": "EPD Hung Shui Kiu NDA EIA; CEDD HSK/HT NDA works",
           "critical_note": "",
-          "介紹": "田心明渠即 Tin Sam Channel，是洪水橋／廈村低地排水網中的獨立水道。在周邊尚未密集建成時這一帶以農田和村落為主，田間細流把雨水引往較大的河道；今天它接續天水圍河道與后海灣方向，新發展工程亦涉及部分渠段的改道和活化。這條渠最適合與沙田的同名水道一起閱讀：名字相同，水卻流向不同海灣。從舊田界、村路到新工地，它展示的不是一條固定不變的線，而是低地排水如何隨城市邊界再次重畫。"
+          "介紹": "田心明渠即 Tin Sam Channel，是洪水橋／廈村低地排水網中的獨立水道。在周邊尚未密集建成時這一帶以農田和村落為主，田間細流把雨水引往較大的河道；今天它接續天水圍河道與后海灣方向，新發展工程亦涉及部分渠段的改道和活化。這條渠道與沙田的同名水道一起閱讀：名字相同，水卻流向不同海灣。從舊田界、村路到新工地，它展示的不是一條固定不變的線，而是低地排水如何隨城市邊界再次重畫。"
         },
+        {
+          "ID": "HK-N-061",
+          "中文名": "牛潭尾水道",
+          "英文名": "Ngau Tam Mei Channel",
+          "地區": "新界",
+          "分區": "元朗·牛潭尾",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I9/I2",
+          "anchor_lat": 22.47,
+          "anchor_lng": 114.046,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "牛潭尾、攸壆路低地",
+          "研究迄點": "錦田河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "牛潭尾水道位於元朗東部低地，向西流入錦田河，覆蓋約 10 平方公里集水區。在大規模發展以前牛潭尾一帶是農田與魚塘，這條水道是田間排灌的命脈。1999 至 2005 年分兩期進行主排水道工程，混凝土加植草護岸，下游設充氣壩阻潮水倒灌。牛潭尾水道的建設映照出元朗東部低地在城市化壓力下，如何透過大型排水道來控制洪水，並防止潮水倒灌影響上游。未來牛潭尾將會落成港鐵北環綫「牛潭尾站」，與新田科技城僅一站之隔。"
+        },          
         {
           "ID": "HK-N-065",
           "中文名": "石崗溪",
@@ -2707,104 +2737,328 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "錦繡花園明渠是穿過錦繡花園、米埔低地的人工排水道，官方環評直接稱之為 man-made nullah，最終流入后海灣。昔日米埔一帶是魚塘與濕地，這條水道是低地排水網絡的一部分。錦繡花園於 1970 年代建成大型低密度住宅區，這條明渠服務於住宅區與周邊農地的排水需求。過去主要污染源之一是上游禽畜廢物。2026 年規劃仍稱 existing Fairview Park Nullah 作為受納水體。錦繡花園明渠的污染歷史也折射出后海灣一帶水質管理與土地用途之間的長期矛盾。到了今天米埔濕地仍是候鳥天堂，這條明渠的水質對濕地生態有直接影響。"
+          "介紹": "錦繡花園明渠是穿過錦繡花園、米埔低地的人工排水道，官方環評直接稱之為 man-made nullah，最終流入后海灣。昔日米埔一帶是魚塘與濕地，這條水道是低地排水網絡的一部分。錦繡花園於 1970 年代建成大型低密度住宅區，這條明渠服務於住宅區與周邊農地的排水需求。過去主要污染源之一是上游禽畜廢物。錦繡花園明渠的污染歷史也折射出后海灣一帶水質管理與土地用途之間的長期矛盾。到了今天米埔濕地仍是候鳥天堂，這條明渠的水質對濕地生態有直接影響。"
         },
         {
-          "ID": "HK-N-094",
-          "中文名": "橋頭圍明渠",
-          "英文名": "Kiu Tau Wai Nullah",
+          "ID": "HK-N-041",
+          "中文名": "梧桐河",
+          "英文名": "Ng Tung River",
           "地區": "新界",
-          "分區": "元朗·洪水橋",
-          "現況可見性": "工程改造中",
+          "分區": "北區",
+          "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "local_engineering_segment",
-          "天然前身級別": "R1/R2",
+          "object_scope": "whole_watercourse",
+          "天然前身級別": "R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I7",
-          "anchor_lat": 22.442,
-          "anchor_lng": 113.998,
+          "relation_code": "I2/I3",
+          "anchor_lat": 22.5123,
+          "anchor_lng": 114.1606,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "洪志路（洪天路走廊）",
-          "研究迄點": "屏廈路",
-          "校訂長度": "工程分段",
+          "研究起點": "紅花嶺、黃嶺、粉嶺東北",
+          "研究迄點": "虎地坳→羅湖→深圳河",
+          "校訂長度": "約 49 km",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "HSK/Ha Tsuen EIA (Kiu Tau Wai / local channel)",
-          "source_readiness": "R2/R3 from EIA figures",
-          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
-          "外部核對": "",
-          "外部核對來源": "",
-          "critical_note": "",
-          "介紹": "橋頭圍明渠位於洪水橋—廈村新發展區中部，貼洪天路走廊由洪志路向北到屏廈路。從前這一帶是農田與村落，這條明渠是田間排水的通道。2016 年環評記錄兩岸為直立混凝土河牆。新發展區計劃對約 120 米進行覆蓋，其餘水道並非全消失，會露天與地下短段交錯。現在它仍位於洪志路至屏廈路的排水走廊內，但形態正在改變：部分河段會維持露天，部分則被改道、活化或納入地下管道。若把今天的街廓疊回舊水線，仍能讀到一條被工程改寫、卻沒有真正停止流動的路徑，也看到洪水橋新發展區如何重塑排水網絡。未來這裡將變成新市鎮的一部分，而這條水道將以新的面貌與居民相遇。"
+          "source_route": "DSD Ng Tung River page + North District EIA/aerial sequence",
+          "source_readiness": "R3 topology; R2→R3 centreline trace",
+          "製圖規則": "把雙魚、石上、梧桐匯流做真正node；不要三條各自直接入深圳河。",
+          "外部核對": "長度定義核實：DSD 資料使用約 49 km 的 total length；此數字不等同地圖上一條單一主幹 LineString 的量測長度。",
+          "外部核對來源": "DSD Ng Tung River materials",
+          "critical_note": "官方已確認天然源區為紅花嶺（Robin's Nest）與黃嶺（Wong Leng），並於虎地坳附近與石上河、雙魚河匯流；現只剩工程前中心線描取。",
+          "介紹": "梧桐河的水從紅花嶺、黃嶺匯下，穿過粉嶺、上水平原，在虎地坳與石上河、雙魚河相會，經羅湖入深圳河。舊名 Fung Kai（鳳溪），殖民文件常稱 River Indus。在城市擴展以前這條河是上水、粉嶺一帶的農業命脈，兩岸稻田遍佈，村民在河邊築陂引水。1998 至 2004 年分階段拉直、擴闊、護岸，河道形態大幅改變，舊時的彎曲河道變成了寬直的工程水道。梧桐河的整治折射出新界北低地從農業洪泛平原到現代排水系統的轉變，也影響著深圳河邊界一帶的水文。走在河邊，昔日的稻浪已被新的城市景觀取代，但水的流向仍連接著過去與現在。"
         },
         {
-          "ID": "HK-N-093",
-          "中文名": "洪天路明渠",
-          "英文名": "Hung Tin Road Nullah",
+          "ID": "HK-N-054",
+          "中文名": "丹山河",
+          "英文名": "Tan Shan River",
           "地區": "新界",
-          "分區": "元朗·洪水橋",
-          "現況可見性": "工程改造中",
+          "分區": "北區·粉嶺",
+          "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
-          "object_scope": "local_engineering_segment",
-          "天然前身級別": "R1/R2",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I7",
-          "anchor_lat": 22.44,
-          "anchor_lng": 114.0,
+          "relation_code": "I2/I3",
+          "anchor_lat": 22.52,
+          "anchor_lng": 114.17,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "青山公路（洪天路東側）",
-          "研究迄點": "近橋發街",
-          "校訂長度": "工程分段",
+          "研究起點": "丹竹坑、馬尾下",
+          "研究迄點": "軍地→梧桐河",
+          "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "HSK/Ha Tsuen EIA (Hung Tin Road Nullah)",
-          "source_readiness": "R2/R3 from EIA figures",
-          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
+          "source_route": "Official EIA / DSD current drainage plan",
+          "source_readiness": "R2→R3",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "洪天路明渠沿洪天路東側南北走向，是洪水橋—廈村低地典型的直立混凝土渠。在城市擴展以前洪水橋一帶是農田，這條明渠是田間排水與灌溉的通道。2016 年環評記錄由青山公路延伸至近橋發街。新發展區對約 720 米提出覆蓋，屬大比例永久失去露天水面的處置。時至今日它仍位於青山公路（洪天路東側）至近橋發街的排水走廊內，但形態正在改變：部分河段會維持露天，部分則被改道、活化或納入地下管道。洪天路明渠的大比例覆蓋，讓人看見洪水橋新發展區在土地需求下，如何將原有的露天排水渠轉為地下管道，以釋出地面空間。未來洪天路一帶將高樓林立，而這條水道將大部分隱入地下，只留下片段記憶。"
+          "介紹": "丹山河位於粉嶺東北，沿馬尾下、沙頭角公路低地流過，名稱沿用丹竹坑地名。在周邊尚未密集建成時丹竹坑一帶是客家村落，村民在山谷開墾梯田，溪水穿村而過，是農業灌溉的主要水源。2011 年 7 月完成擴闊拉直工程，露天工程河與鄉郊溪流交錯，並未因新市鎮發展而全部轉入地下。這種半自然、半工程的形態，正是香港許多鄉郊水道最典型的樣子，也讓人看見了粉嶺東北在城市化邊緣地帶的排水管理策略。走在丹竹坑的田間小路上，仍能看見溪水在石塊間流過，混合著鄉村生活的樸實與現代防洪的痕跡。"
         },
         {
-          "ID": "HK-N-092",
-          "中文名": "石埗水道",
-          "英文名": "Shek Po Channel",
+          "ID": "HK-N-049",
+          "中文名": "平原河",
+          "英文名": "Ping Yuen River",
           "地區": "新界",
-          "分區": "元朗·洪水橋",
+          "分區": "北區·打鼓嶺",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R3",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I2",
+          "anchor_lat": 22.535,
+          "anchor_lng": 114.156,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "打鼓嶺禾徑山",
+          "研究迄點": "深圳河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "平原河在打鼓嶺禾徑山收集山谷雨水，向北流入深圳河。它本是天然洪泛平原，雨季河水漫流，滋養了兩岸農田與濕地。打鼓嶺一帶長期是邊境禁區，開發較少，這條河得以保留較天然的樣貌。2003 至 2006 年進行約 1.7 公里復修，主河約一半用植草混凝土護岸，部分支流用石塊砌護。2026 年暴雨再次暴露上游支流不足。平原河的治理並非一蹴而就，即使經過工程整治，極端天氣下鄉郊河道的排水能力仍可能受到挑戰。打鼓嶺的寧靜鄉郊與這條河相依相存，未來的氣候變化將是它新的考驗。"
+        },
+        {
+          "ID": "HK-N-051",
+          "中文名": "石上河",
+          "英文名": "Shek Sheung River",
+          "地區": "新界",
+          "分區": "北區·上水",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R3",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I3/I2",
+          "anchor_lat": 22.503,
+          "anchor_lng": 114.113,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "上水、石湖墟西",
+          "研究迄點": "深圳河水系",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "North District EIA + LandsD aerial sequence",
+          "source_readiness": "R2→R3",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "石上河沿上水、石湖墟西面、塱原西緣向北流入深圳河水系。殖民文件稱它為 River Sutlej。從前上水一帶是農田與魚塘交錯的平原，石上河蜿蜒其間，是農業灌溉的重要來源。1990 年代末起分段訓練，舊曲流被工程主槽取代，未來將受古洞北、粉嶺北污水設施更新影響。石上河的整治折射出上水一帶從農業低地到新市鎮邊緣的轉變，塱原的濕地也與這條河的水文息息相關。到了今天塱原的稻田與蘆葦叢仍依賴石上河的水滋潤，而河的形態卻已不再是昔日的蜿蜒曲流。"
+        },
+        {
+          "ID": "HK-N-052",
+          "中文名": "軍地河",
+          "英文名": "Kwan Tei River",
+          "地區": "新界",
+          "分區": "北區·粉嶺",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I2/I3",
+          "anchor_lat": 22.516,
+          "anchor_lng": 114.162,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "粉嶺東·軍地、皇后山",
+          "研究迄點": "梧桐河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "Official EIA / DSD current drainage plan",
+          "source_readiness": "R2→R3",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "軍地河位於粉嶺東面軍地、皇后山一帶，匯水向西北流入梧桐河。在城市擴展以前這一帶是鄉村與農田，軍地河是村民生活與農耕的重要水源。2011 年完成擴闊拉直，其後在硬化河中進行生態試驗，改造多孔河岸與不同流速微地形，螢火蟲因而重現。螢火蟲的重現，讓這條曾因工程而失去生機的河道，再次點亮了鄉郊的夜晚。"
+        },
+        {
+          "ID": "HK-N-050",
+          "中文名": "雙魚河",
+          "英文名": "Sheung Yue River",
+          "地區": "新界",
+          "分區": "北區·古洞",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R3",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I2/I3",
+          "anchor_lat": 22.505,
+          "anchor_lng": 114.098,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "古洞、塱原",
+          "研究迄點": "虎地坳→深圳河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "North District EIA + LandsD aerial sequence",
+          "source_readiness": "R2→R3",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "雙魚河流經古洞、塱原、河上鄉，在虎地坳與梧桐河、石上河匯合。殖民文件稱 River Beas。在大規模發展以前這條河是古洞一帶農村的血脈，河水清澈，魚蝦成群，故有「雙魚」之名。1999 至 2001 年下游進行訓練並復修，部分舊曲流留作濕地。時至今日它已成為新發展區與塱原自然公園之間的藍綠邊界。水仍大致由古洞、塱原沿開放河道或溪谷向虎地坳、深圳河流去，只是河床、護岸與兩側土地早已留下不同年代的工程痕跡。雙魚河的變化不是一次完成，而是在取直、護岸、覆蓋與重新整理之間逐步發生。未來古洞北發展將進一步影響這條河的景觀與功能，而塱原的稻田與河上鄉的魚塘，仍將依賴雙魚河的水維持生計與生態。"
+        },
+        {
+          "ID": "HK-N-053",
+          "中文名": "麻笏河",
+          "英文名": "Ma Wat River",
+          "地區": "新界",
+          "分區": "北區·粉嶺",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R3",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I2",
+          "anchor_lat": 22.502,
+          "anchor_lng": 114.152,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "粉嶺九龍坑山",
+          "研究迄點": "簡頭村→梧桐河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "麻笏河在粉嶺九龍坑山一帶向北流，於簡頭村接入梧桐河。在周邊尚未密集建成時粉嶺一帶是客家村落，麻笏河是村民日常洗滌與灌溉的水源，河邊常見婦女洗衣、孩童嬉水。2005 至 2008 年建約 1.8 公里渠道，並處理東鐵下穿問題，2015 年底在賽馬會道附近做生態提升試驗。麻笏河的整治記下了粉嶺一帶鄉郊排水系統的現代化，也可看出在工程渠道中嘗試加入生態元素的趨勢。時至今日麻笏河兩岸的村屋與農田仍在，溪水仍在，但舊日河邊洗衣的情景已不復見。"
+        },
+        {
+          "ID": "HK-N-063",
+          "中文名": "丙崗溪",
+          "英文名": "Ping Kong Stream",
+          "地區": "新界",
+          "分區": "北區·粉嶺",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "tributary_or_branch",
+          "天然前身級別": "R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I2",
+          "anchor_lat": 22.512,
+          "anchor_lng": 114.128,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "粉嶺丙崗、南華莆",
+          "研究迄點": "北區河網→梧桐河",
+          "校訂長度": "—",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "",
+          "外部核對來源": "",
+          "critical_note": "",
+          "介紹": "丙崗溪位於粉嶺東北丙崗、南華莆一帶，水從山坡、農田、村路匯下，接入北區河網。昔日這一帶是典型的鄉郊聚落，溪水沿著田邊流過，村民在溪邊開墾菜地，溪水同時也是家禽飲水的來源。2006 年 12 月起在丙崗、九肚坑、南華莆等地興建約 5.2 公里渠道與地下管道，2010 年底完成，混凝土渠床加設植草護坡。丙崗溪的治理呈現了，鄉郊低地的排水改善往往涉及大範圍渠道與地下管道，改變了原有溪流的面貌。走在丙崗的鄉間小路上，溪水仍穿流而過，但它的岸線已比從前整齊得多。"
+        },
+        {
+          "ID": "HK-N-069",
+          "中文名": "馬草壟溪",
+          "英文名": "Ma Tso Lung Stream",
+          "地區": "新界",
+          "分區": "北區·落馬洲",
           "現況可見性": "未消失",
           "工程／活化狀態": "按現況分類；無額外2026工程更新",
           "object_scope": "tributary_or_branch",
           "天然前身級別": "R1/R2",
           "明渠期級別": "R3",
           "現況級別": "R3",
-          "relation_code": "I7/I9",
-          "anchor_lat": 22.448,
-          "anchor_lng": 114.0,
+          "relation_code": "I2",
+          "anchor_lat": 22.51,
+          "anchor_lng": 114.078,
           "anchor_role": "研究代表點／定位入口",
           "位置判定": "已核位置範圍；代表點非中心線",
           "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
-          "研究起點": "石埗、青山公路一帶",
-          "研究迄點": "天水圍河道→后海灣",
+          "研究起點": "落馬洲馬草壟",
+          "研究迄點": "深圳河",
           "校訂長度": "—",
           "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
           "current_display_geometry_status": "research reconstructed / corridor",
           "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
-          "source_route": "HSK/Ha Tsuen EIA (Shek Po Channel)",
-          "source_readiness": "R2/R3 from EIA figures",
-          "製圖規則": "現況與future realignment/boxing分期；不要把計畫線當現況線。",
+          "source_route": "DSD EcoDMS river map + aerial tour",
+          "source_readiness": "R3 source identity / R2→R3 geometry after map trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "石埗水道位於洪水橋—廈村南部低地，從石埗、青山公路向北接天水圍河道，通后海灣。在大規模發展以前石埗一帶是魚塘與農田，這條水道是低地排水的重要部分。2016 年環評記錄北段為斜面混凝土河岸，南段短距離植草混凝土。新發展以提升為主，保留在開放空間骨架中。石埗水道在新發展區中將被保留並提升，可看出洪水橋規劃在排水與開放空間之間尋求整合。未來石埗一帶的居民，將能沿著這條水道散步，感受新市鎮與水共生的生活。"
+          "介紹": "馬草壟溪在落馬洲馬草壟向西北流入深圳河，毗鄰魚塘、濕地。在城市擴展以前馬草壟一帶是邊境村落，村民以種植和養魚為生，溪水滋養了村邊的魚塘與農田。2008 年 8 月覆蓋麒麟村、馬草壟等約 3.1 公里工程開工，2010 年底完成，大部分採用石塊護岸，順意新村西南保留半天然段。馬草壟溪的整治與邊境濕地、魚塘景觀交織，讓人看見落馬洲一帶在防洪與生態之間的平衡。站在馬草壟的高處，深圳河與魚塘濕地一覽無遺，這條溪流流動，連接著邊境的過去與現在。"
         },
+        {
+          "ID": "HK-N-075",
+          "中文名": "深圳河",
+          "英文名": "Shenzhen River",
+          "地區": "新界",
+          "分區": "北區·港深邊界",
+          "現況可見性": "未消失",
+          "工程／活化狀態": "按現況分類；無額外2026工程更新",
+          "object_scope": "whole_watercourse",
+          "天然前身級別": "R2",
+          "明渠期級別": "R3",
+          "現況級別": "R3",
+          "relation_code": "I3(Stage I–III)+I1(Stage IV)",
+          "anchor_lat": 22.50613,
+          "anchor_lng": 114.03465,
+          "anchor_role": "研究代表點／定位入口",
+          "位置判定": "已核位置範圍；代表點非中心線",
+          "定位QA理由": "位置落在已核的命名水道／工程段研究範圍；完整中心線未因 nearest DSD fragment 而自動升格。",
+          "研究起點": "港深邊界山谷",
+          "研究迄點": "落馬洲→后海灣",
+          "校訂長度": "約 37 km",
+          "長度讀法": "文獻／工程段定義優先；HTML 重建線長不等於文獻總長",
+          "current_display_geometry_status": "research reconstructed / corridor",
+          "DSD_evidence_policy": "只把附近 DSD feature 當官方證據碎段；不再把短樁標成完整中心線",
+          "source_route": "DSD Shenzhen River Regulation Project",
+          "source_readiness": "R3 topology; R2→R3 centreline trace",
+          "製圖規則": "按官方現況線描；形態改變處切segment；不以現代渠道化推定全河曾取直。",
+          "外部核對": "長度／流向核實：DSD 資料指深圳河約 37 km，由東北向西南入后海灣。",
+          "外部核對來源": "DSD Shenzhen River Regulation Project",
+          "critical_note": "",
+          "介紹": "深圳河既是河，也是港深邊界。它從新界北與深圳一側的山谷匯水，沿打鼓嶺、文錦渡、羅湖、落馬洲流入后海灣。在大規模發展以前這條河是兩岸村民往來的天然水道，船隻穿梭，邊境生活緊密相連。1950 年代後，邊界封鎖，河面成了政治分界線。1995 年起分四期治理（1997／2000／2006／2017），第四期加建蓄洪湖與濕地。"
+        },          
         {
           "ID": "HK-N-042",
           "中文名": "東涌河",
@@ -2899,7 +3153,7 @@ min-height: 25vh;
           "外部核對": "",
           "外部核對來源": "",
           "critical_note": "",
-          "介紹": "大澳涌是大嶼山西端河流與海灣交會的潮汐水道。從前大澳是漁村與鹽田，南面山水入大澳後分岔，棚屋、街市、鹽田舊址、小艇都貼水而生。大澳的棚屋沿涌而建，居民以船為家，潮汐漲退直接影響日常生活。從未覆蓋，改以河牆、止回閥、可拆式防洪板應付風暴潮，2026 年兩座新行人橋跨河。大澳涌與棚屋聚落緊密共生，是香港少數保留漁村水鄉風貌的潮汐水道，其防洪措施也讓人看見對傳統景觀的尊重。今天的大澳涌仍是遊人與居民共用的水岸，鹹淡水交會處，生活與水密不可分。"
+          "介紹": "大澳涌是大嶼山西端河流與海灣交會的潮汐水道。從前大澳是漁村與鹽田，南面山水入大澳後分岔，棚屋、街市、鹽田舊址、小艇都貼水而生。大澳的棚屋沿涌而建，居民以船為家，潮汐漲退直接影響日常生活。從未覆蓋，改以河牆、止回閥、可拆式防洪板應付風暴潮，2026 年兩座新行人橋跨河。大澳涌與棚屋聚落緊密共生，是香港少數保留漁村水鄉風貌的潮汐水道，其防洪措施也讓人看見對傳統景觀的尊重。今天的大澳涌仍是遊人與居民共用的水岸，鹹淡水交匯處，生活與水密不可分。"
         },
         {
           "ID": "HK-N-068",
@@ -3517,7 +3771,9 @@ min-height: 25vh;
             "type": "Feature",
             "geometry": {
               "type": "LineString",
-              "coordinates": [[114.228995,22.319103],[114.2289392,22.3189064],[114.2288834,22.3187098],[114.2288276,22.3185132],[114.2287718,22.3183166],[114.228716,22.31812],[114.2286624,22.3179216],[114.2286088,22.3177232],[114.2285552,22.3175248],[114.2285016,22.3173264],[114.228448,22.317128],[114.2283942,22.3169276],[114.2283404,22.3167272],[114.2282866,22.3165268],[114.2282328,22.3163264],[114.228179,22.316126],[114.2281276,22.3159274],[114.2280762,22.3157288],[114.2280248,22.3155302],[114.2279734,22.3153316],[114.227922,22.315133],[114.2278706,22.3149306],[114.2278192,22.3147282],[114.2277678,22.3145258],[114.2277164,22.3143234],[114.227665,22.314121],[114.2276112,22.3139164],[114.2275574,22.3137118],[114.2275036,22.3135072],[114.2274498,22.3133026],[114.227396,22.313098],[114.2273424,22.3128936],[114.2272888,22.3126892],[114.2272352,22.3124848],[114.2271816,22.3122804],[114.227128,22.312076],[114.2270744,22.3118736],[114.2270208,22.3116712],[114.2269672,22.3114688],[114.2269136,22.3112664],[114.22686,22.311064],[114.2268042,22.3108594],[114.2267484,22.3106548],[114.2266926,22.3104502],[114.2266368,22.3102456],[114.226581,22.310041],[114.2265252,22.3098366],[114.2264694,22.3096322],[114.2264136,22.3094278],[114.2263578,22.3092234],[114.226302,22.309019]]
+              "coordinates": [[114.22964,22.31193],
+                              [114.22748,22.30941],
+                              [114.22295,22.30577]]
             },
             "properties": {
               "ID": "HK-N-018",
@@ -3792,7 +4048,12 @@ min-height: 25vh;
             "type": "Feature",
             "geometry": {
               "type": "LineString",
-              "coordinates": [[114.213395,22.384702],[114.213253,22.384657],[114.213111,22.384612],[114.212969,22.3845675],[114.212827,22.384523],[114.212685,22.384478],[114.212543,22.384433],[114.212401,22.384388],[114.212259,22.384343],[114.212177,22.3841308],[114.212095,22.3839186],[114.212013,22.3837064],[114.211931,22.3834942],[114.211849,22.383282],[114.211725,22.3832935],[114.211601,22.383305],[114.211465,22.3833175],[114.211329,22.38333],[114.211152,22.3833795],[114.210975,22.383429],[114.210833,22.383363],[114.210691,22.383297],[114.210479,22.38332167],[114.210267,22.38334633],[114.210055,22.383371],[114.209843,22.38339567],[114.209631,22.38342033],[114.209419,22.383445],[114.209277,22.3834],[114.209135,22.383355],[114.208993,22.38331],[114.208851,22.383265],[114.208709,22.3832205],[114.208567,22.383176],[114.2084245,22.383131],[114.208282,22.383086],[114.2081405,22.383041],[114.207999,22.382996],[114.2078575,22.3829485],[114.207716,22.382901],[114.2075745,22.382853],[114.207433,22.382805],[114.2072915,22.3827575],[114.20715,22.38271],[114.207009,22.3826625],[114.206868,22.382615],[114.2067265,22.382567],[114.206585,22.382519],[114.2064435,22.3824715],[114.206302,22.382424],[114.206161,22.3823765],[114.20602,22.382329],[114.2058785,22.382281],[114.205737,22.382233],[114.2055955,22.3821855],[114.205454,22.382138],[114.205313,22.3820905],[114.205172,22.382043],[114.2050305,22.381995],[114.204889,22.381947],[114.2047475,22.3818995],[114.204606,22.381852],[114.204382,22.38187483],[114.204158,22.38189767],[114.203934,22.3819205],[114.20371,22.38194333],[114.203486,22.38196617],[114.203262,22.381989],[114.2031665,22.3818995],[114.203071,22.38181],[114.203005,22.381757],[114.202984,22.381777],[114.20279167,22.38184167],[114.20259933,22.38190633],[114.202407,22.381971],[114.2023025,22.38179233],[114.202198,22.38161367],[114.2020935,22.381435],[114.201989,22.38125633],[114.2018845,22.38107767],[114.20178,22.380899],[114.2016385,22.380851],[114.201497,22.380803]]
+              "coordinates": [[114.21091,22.37908],
+[114.21113,22.38059],
+[114.21127,22.38248],
+[114.21061,22.38348],
+[114.20387, 22.38989],
+[114.20352,22.39096]]
             },
             "properties": {
               "ID": "HK-N-038",
@@ -21552,7 +21813,7 @@ min-height: 25vh;
         "policy": "DSD feature fragments are evidence, not complete named-watercourse centreline"
       }
     }; 
-
+    
     // ============================================================
     // 2. MAP / UI LOGIC
     // ============================================================
@@ -21573,9 +21834,9 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
     
     const C={
         '未消失':'#114220',
-        '部分消失':'#ffa200',
+        '部分消失':'#ff8400',
         '已消失':'#0054e6',
-        '工程改造中':'#c6634f',
+        '工程改造中':'#d41111',
         '未消失可能性高':'#55a9cf',
         '待判定':'#969c9d'
     };
@@ -21702,10 +21963,26 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
       return `<b>${f.properties.name}</b><br>${f.properties.eng}`;
     }
  
+    let lastFeatureInteraction=0;
+
     function openFeaturePopupAtDot(f, groupKey){
+      lastFeatureInteraction=Date.now();
       const dot=endpointDots.get(`${groupKey}:${f.properties.ID}`);
       if(dot) dot.openPopup();
-    } 
+    }
+
+    function clearSelection(){
+      const mobileSelect=document.getElementById('waterSelect');
+      if(mobileSelect) mobileSelect.value='';
+      document.getElementById('detail').innerHTML='以上選擇一條';
+      const detailSection=document.getElementById('detailSection');
+      detailSection.classList.remove('is-open');
+      detailSection.classList.add('is-collapsed');
+      detailSection.style.height='';
+      const drawerHandle=document.getElementById('drawerHandle');
+      if(drawerHandle) drawerHandle.setAttribute('aria-expanded','false');
+      map.closePopup();
+    }
 
     function makeHitLayer(data, width, targetGroup, groupKey){
       L.geoJSON(data,{
@@ -21815,7 +22092,16 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
     
     function lyrs(group,id){let a=[];group.eachLayer(l=>{if(l.feature&&l.feature.properties.ID===id)a.push(l)});return a}
     function select(id){
-     const x=M[id]; let ls=[...lyrs(G.now,id),...lyrs(G.hist,id),...lyrs(G.nat,id),...lyrs(G.evidence,id)];
+     const x=M[id];
+     if(!x) return;
+     const detailSection=document.getElementById('detailSection');
+     detailSection.classList.remove('is-collapsed');
+     detailSection.classList.add('is-open');
+     detailSection.style.height='';
+     const drawerHandle=document.getElementById('drawerHandle');
+     if(drawerHandle) drawerHandle.setAttribute('aria-expanded','true');
+     const mobileSelect=document.getElementById('waterSelect');
+     if(mobileSelect && mobileSelect.value!==id) mobileSelect.value=id; let ls=[...lyrs(G.now,id),...lyrs(G.hist,id),...lyrs(G.nat,id),...lyrs(G.evidence,id)];
      let b=L.latLngBounds([]);ls.forEach(l=>{try{b.extend(l.getBounds())}catch(e){}});if(b.isValid())map.fitBounds(b.pad(.16),{maxZoom:16});
       // 選擇左側明渠後：定位完成，同步開啟地圖上的資料 popup
       const visibleGroups=['now','hist','nat','evidence'];
@@ -21842,8 +22128,106 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
      const q=document.getElementById('search').value.trim().toLowerCase(),el=document.getElementById('list');el.innerHTML='';
      DATA.master.filter(x=>!q||`${x.ID} ${x.中文名} ${x.英文名}`.toLowerCase().includes(q)).forEach(x=>{const d=document.createElement('div');d.className='row';d.innerHTML=`<b>${x.中文名}</b><span class="badge">${x.ID}</span><br><span class="small">${x.地區} · ${x.現況可見性} · ${x.校訂長度}</span>`;d.onclick=()=>select(x.ID);el.appendChild(d)})
     } document.getElementById('search').oninput=render;
-    
+
+    function renderMobileSelect(){
+      const sel=document.getElementById('waterSelect');
+      DATA.master.forEach(x=>{
+        const opt=document.createElement('option');
+        opt.value=x.ID;
+        opt.textContent=`${x.中文名} · ${x.ID}`;
+        sel.appendChild(opt);
+      });
+      sel.onchange=()=>{ if(sel.value) select(sel.value); };
+    }
+
     render();
+    renderMobileSelect();
+
+    // Mobile detail drawer: drag the handle up/down, or tap it to toggle.
+    (function setupDetailDrawer(){
+      const drawer=document.getElementById('detailSection');
+      const handle=document.getElementById('drawerHandle');
+      if(!drawer || !handle) return;
+
+      let startY=0, startHeight=0, collapsedHeight=0, openHeight=0;
+      let dragging=false, moved=false;
+
+      function isMobile(){ return window.matchMedia('(max-width: 768px)').matches; }
+      function measure(){
+        const wasCollapsed=drawer.classList.contains('is-collapsed');
+        const oldHeight=drawer.style.height;
+
+        drawer.style.height='';
+        drawer.classList.add('is-collapsed');
+        drawer.classList.remove('is-open');
+        collapsedHeight=drawer.getBoundingClientRect().height;
+
+        drawer.classList.remove('is-collapsed');
+        drawer.classList.add('is-open');
+        openHeight=Math.min(drawer.scrollHeight, window.innerHeight * 0.40);
+
+        drawer.classList.toggle('is-collapsed', wasCollapsed);
+        drawer.classList.toggle('is-open', !wasCollapsed);
+        drawer.style.height=oldHeight;
+      }
+
+      function snap(open){
+        drawer.classList.remove('is-dragging');
+        drawer.style.height='';
+        drawer.classList.toggle('is-open', open);
+        drawer.classList.toggle('is-collapsed', !open);
+        handle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      handle.addEventListener('pointerdown', e=>{
+        if(!isMobile()) return;
+        measure();
+        startY=e.clientY;
+        startHeight=drawer.getBoundingClientRect().height;
+        dragging=true; moved=false;
+        drawer.classList.add('is-dragging');
+        handle.setPointerCapture?.(e.pointerId);
+        e.preventDefault();
+      });
+
+      handle.addEventListener('pointermove', e=>{
+        if(!dragging) return;
+        const dy=e.clientY-startY;
+        if(Math.abs(dy)>4) moved=true;
+        const h=Math.max(collapsedHeight, Math.min(openHeight, startHeight-dy));
+        drawer.style.height=h+'px';
+        e.preventDefault();
+      });
+
+      function endDrag(e){
+        if(!dragging) return;
+        dragging=false;
+        handle.releasePointerCapture?.(e.pointerId);
+        const current=drawer.getBoundingClientRect().height;
+        const midpoint=(collapsedHeight+openHeight)/2;
+        if(!moved){
+          snap(drawer.classList.contains('is-collapsed'));
+        }else{
+          snap(current>=midpoint);
+        }
+      }
+      handle.addEventListener('pointerup', endDrag);
+      handle.addEventListener('pointercancel', endDrag);
+      handle.addEventListener('keydown', e=>{
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          snap(drawer.classList.contains('is-collapsed'));
+        }
+      });
+      window.addEventListener('resize', ()=>{ if(isMobile()) drawer.style.height=''; });
+    })();
+
+    // Click genuine map background: cancel current selection and collapse mobile detail drawer.
+    map.on('click',()=>{
+      // Leaflet line clicks can bubble to the map; ignore the same click that just hit a watercourse.
+      if(Date.now()-lastFeatureInteraction<180) return;
+      clearSelection();
+    });
     
     function setBase(k){
       // 今天：標準底圖；歷史／天然／三期疊加：淺色底圖
@@ -21866,6 +22250,32 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
     document.getElementById('btnHist').onclick=()=>{setBase('hist');scheduleEndpointReposition();};
     document.getElementById('btnNat').onclick=()=>{setBase('nat');scheduleEndpointReposition();};
     document.getElementById('btnAll').onclick=()=>{setBase('all');scheduleEndpointReposition();};
+
+    // Mobile floating layer menu
+    const layerSection = document.getElementById('layerSection');
+    const layerToggle = document.getElementById('layerToggle');
+    if(layerSection && layerToggle){
+      layerToggle.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const open = layerSection.classList.toggle('is-open');
+        layerToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.getElementById('layerMenu').addEventListener('click', (e)=>e.stopPropagation());
+      ['btnNow','btnHist','btnNat','btnAll'].forEach(id=>{
+        document.getElementById(id).addEventListener('click', ()=>{
+          if(window.matchMedia('(max-width: 768px)').matches){
+            layerSection.classList.remove('is-open');
+            layerToggle.setAttribute('aria-expanded','false');
+          }
+        });
+      });
+      document.addEventListener('click', ()=>{
+        if(window.matchMedia('(max-width: 768px)').matches){
+          layerSection.classList.remove('is-open');
+          layerToggle.setAttribute('aria-expanded','false');
+        }
+      });
+    }
     
     
     
@@ -21873,6 +22283,6 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
     
     
     
-    </script></body></html>
+    </script>
 </body>
 </html>
