@@ -21582,7 +21582,7 @@ const map=L.map('map',{preferCanvas:true}).setView([22.36,114.14],10.5);
     
     const G={now:L.layerGroup().addTo(map),hist:L.layerGroup(),nat:L.layerGroup(),evidence:L.layerGroup(),points:L.layerGroup(),focus:L.layerGroup().addTo(map)};
     // 每層獨立 hit area 寬度（px）：只影響點擊範圍，不改變線條外觀
-    const HIT_WIDTH={now:20,hist:20,nat:20,evidence:20
+    const HIT_WIDTH={now:10,hist:10,nat:10,evidence:10
                     };
     // 每條線兩端互動圓點半徑（px），各圖層可獨立調整
     const ENDPOINT_RADIUS = {
